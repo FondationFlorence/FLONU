@@ -408,43 +408,6 @@
         }
 
         /* Entretiens blancs */
-        .booking-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-        
-        .booking-card {
-            background-color: var(--white);
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        
-        .booking-title {
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-            color: var(--black);
-        }
-        
-        .booking-meta {
-            color: var(--secondary-color);
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-        
-        .booking-btn {
-            display: block;
-            width: 100%;
-            padding: 0.8rem 0;
-            background-color: var(--primary-color);
-            color: var(--white);
-            border: none;
-            border-radius: 4px;
-            text-align: center;
-            text-decoration: none;
-            margin-top: 1rem;
-        }
 
         /* Contenu caché par défaut */
         .tab-content {
@@ -573,7 +536,6 @@
                 <button class="tertiary-tab" data-tab="quiz">Quiz</button>
                 <button class="tertiary-tab" data-tab="cas">Cas pratiques</button>
                 <button class="tertiary-tab" data-tab="ressources-entretiens">Préparer son entretien</button>
-                <button class="tertiary-tab" data-tab="entretiens-blancs">Entretien blanc</button>
             </div>
             
             <!-- Fiches de révision -->
@@ -629,26 +591,6 @@
                 
                 <div class="content-grid" id="entretien-grid">
                     <!-- Les ressources sur les entretiens seront générées ici par JavaScript -->
-                </div>
-            </div>
-            
-            <!-- Entretiens blancs -->
-            <div id="entretiens-blancs" class="tertiary-content" style="display:none">
-                <div class="search-container">
-                    <select class="filter-dropdown" style="width:49%; display:inline-block" id="domain-booking">
-                        <option value="">Sélectionner un domaine</option>
-                        <option value="droit">Droit</option>
-                        <option value="finance">Finance de Marché</option>
-                        <option value="consulting">Consulting</option>
-                    </select>
-                    <select class="filter-dropdown" style="width:49%; display:inline-block" id="subdomain-booking">
-                        <option value="">Sélectionner un sous-domaine</option>
-                        <!-- Options chargées dynamiquement en fonction du domaine sélectionné -->
-                    </select>
-                </div>
-                
-                <div class="booking-container" id="booking-grid">
-                    <!-- Les disponibilités pour les entretiens blancs seront générées ici par JavaScript -->
                 </div>
             </div>
         </div>
@@ -1346,62 +1288,7 @@
         ];
 
         // Données des entretiens blancs (simulées)
-        const bookingData = [
-            {
-                id: 1,
-                title: "Entretien Droit des affaires",
-                domain: "droit",
-                subdomain: "affaires",
-                mentor: "Me Jean Dupont",
-                date: "15/03/2025",
-                slots: ["10:00", "14:00", "16:30"]
-            },
-            {
-                id: 2,
-                title: "Entretien Droit social",
-                domain: "droit",
-                subdomain: "social",
-                mentor: "Me Sophie Martin",
-                date: "18/03/2025",
-                slots: ["11:00", "15:30"]
-            },
-            {
-                id: 3,
-                title: "Entretien Finance de marché - Trading",
-                domain: "finance",
-                subdomain: "trading",
-                mentor: "Thomas Leclerc",
-                date: "16/03/2025",
-                slots: ["09:30", "13:00", "17:00"]
-            },
-            {
-                id: 4,
-                title: "Entretien Finance de marché - M&A",
-                domain: "finance",
-                subdomain: "m&a",
-                mentor: "Laura Blanc",
-                date: "19/03/2025",
-                slots: ["10:30", "14:30"]
-            },
-            {
-                id: 5,
-                title: "Entretien Consulting - Stratégie",
-                domain: "consulting",
-                subdomain: "strategie",
-                mentor: "Paul Dubois",
-                date: "17/03/2025",
-                slots: ["09:00", "13:30", "16:00"]
-            },
-            {
-                id: 6,
-                title: "Entretien Consulting - Opérations",
-                domain: "consulting",
-                subdomain: "operations",
-                mentor: "Marie Petit",
-                date: "20/03/2025",
-                slots: ["11:30", "15:00"]
-            }
-        ];
+        /* Supprimé */
 
         // Dictionnaire des sous-types par type
         const videoSubtypes = {
@@ -1551,23 +1438,7 @@
         }
 
         // Fonction pour créer un élément de réservation d'entretien
-        function createBookingElement(booking) {
-            const slotsHtml = booking.slots.map(slot => `
-                <a href="#" class="booking-btn" data-booking-id="${booking.id}" data-slot="${slot}">Réserver à ${slot}</a>
-            `).join('');
-            
-            return `
-            <div class="booking-card" data-domain="${booking.domain}" data-subdomain="${booking.subdomain}">
-                <h3 class="booking-title">${booking.title}</h3>
-                <div class="booking-meta">
-                    <p>Mentor: ${booking.mentor}</p>
-                    <p>Date: ${booking.date}</p>
-                </div>
-                <p>Choisissez un créneau horaire:</p>
-                ${slotsHtml}
-            </div>
-            `;
-        }
+        /* Supprimé */
 
         // Fonction pour générer un quiz actif
         function generateActiveQuiz(quizId) {
@@ -1674,14 +1545,7 @@
         }
 
         // Fonction pour initialiser les entretiens blancs
-        function initEntretiensBlancs() {
-            const bookingGrid = document.getElementById('booking-grid');
-            bookingGrid.innerHTML = '';
-            
-            bookingData.forEach(booking => {
-                bookingGrid.innerHTML += createBookingElement(booking);
-            });
-        }
+        /* Supprimé */
 
         // Fonction pour mettre à jour les sous-types de vidéos en fonction du type sélectionné
         function updateVideoSubtypes() {
@@ -1917,30 +1781,7 @@
         }
 
         // Fonction pour filtrer les entretiens blancs
-        function filterEntretiensBlancs() {
-            const domainFilter = document.getElementById('domain-booking').value;
-            const subdomainFilter = document.getElementById('subdomain-booking').value;
-            
-            const bookings = document.querySelectorAll('#booking-grid .booking-card');
-            
-            bookings.forEach(booking => {
-                const domain = booking.getAttribute('data-domain');
-                const subdomain = booking.getAttribute('data-subdomain');
-                
-                // Vérifier la correspondance avec le domaine
-                const matchesDomain = !domainFilter || domain === domainFilter;
-                
-                // Vérifier la correspondance avec le sous-domaine
-                const matchesSubdomain = !subdomainFilter || subdomain === subdomainFilter;
-                
-                // Afficher ou masquer l'entretien
-                if (matchesDomain && matchesSubdomain) {
-                    booking.style.display = 'block';
-                } else {
-                    booking.style.display = 'none';
-                }
-            });
-        }
+        /* Supprimé */
 
         // Fonction pour initialiser tous les éléments
         function initAll() {
@@ -1950,7 +1791,6 @@
             initCas();
             initEntretienRessources();
             initQuiz();
-            initEntretiensBlancs();
             
             // Attacher les événements
             attachEvents();
@@ -2023,13 +1863,6 @@
             
             // Filtres ressources entretiens
             document.getElementById('entretien-search').addEventListener('input', filterEntretienRessources);
-            
-            // Filtres entretiens blancs
-            document.getElementById('domain-booking').addEventListener('change', function() {
-                updateSubdomains();
-                filterEntretiensBlancs();
-            });
-            document.getElementById('subdomain-booking').addEventListener('change', filterEntretiensBlancs);
             
             // Prévisualisation des documents
             document.addEventListener('click', function(e) {
@@ -2121,17 +1954,7 @@
             });
             
             // Réservation d'entretien
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('booking-btn')) {
-                    e.preventDefault();
-                    const bookingId = e.target.getAttribute('data-booking-id');
-                    const slot = e.target.getAttribute('data-slot');
-                    alert(`Entretien réservé avec succès pour le créneau de ${slot}. Un email de confirmation vous sera envoyé.`);
-                    e.target.textContent = 'Réservé';
-                    e.target.classList.add('disabled');
-                    e.target.disabled = true;
-                }
-            });
+            /* Supprimé */
         }
         
         // Fonction pour valider un quiz
