@@ -407,6 +407,21 @@
             display: none;
         }
 
+        /* Ajout de styles spécifiques pour les miniatures */
+        .custom-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+        
+        .default-icon {
+            width: 40px;
+            height: 40px;
+            opacity: 0.6;
+            object-fit: contain;
+        }
+        
         /* Entretiens blancs */
 
         /* Contenu caché par défaut */
@@ -1394,15 +1409,23 @@
                 ? `data-inline="true" data-content-id="${doc.id}"` 
                 : `data-url="${doc.fileUrl}"`;
             
+            // Préchargement de l'image pour garantir son affichage
+            if (doc.imageUrl) {
+                const preloadImage = new Image();
+                preloadImage.src = doc.imageUrl;
+            }
+            
             // Vérifier si une image personnalisée est fournie
             const imageHtml = doc.imageUrl 
-                ? `<img src="${doc.imageUrl}" alt="${doc.title}" style="width: 100%; height: 100%; object-fit: cover;">` 
-                : `<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0RjRGNEYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTQgMkg2YTIgMiAwIDAgMC0yIDJ2MTZhMiAyIDAgMCAwIDIgMmgxMmEyIDIgMCAwIDAgMi0yVjh6Ij48L3BhdGg+PHBvbHlsaW5lIHBvaW50cz0iMTQgMiAxNCA4IDIwIDgiPjwvcG9seWxpbmU+PC9zdmc+" alt="Document">`;
+                ? `<img src="${doc.imageUrl}" alt="${doc.title}" class="custom-thumbnail">` 
+                : `<div class="document-icon-container"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0RjRGNEYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTQgMkg2YTIgMiAwIDAgMC0yIDJ2MTZhMiAyIDAgMCAwIDIgMmgxMmEyIDIgMCAwIDAgMi0yVjh6Ij48L3BhdGg+PHBvbHlsaW5lIHBvaW50cz0iMTQgMiAxNCA4IDIwIDgiPjwvcG9seWxpbmU+PC9zdmc+" alt="Document" class="default-icon"></div>`;
             
             return `
             <div class="content-card" data-type="${doc.type}" data-category="${doc.category || ''}" data-domain="${doc.domain || ''}" data-tags="${doc.tags.join(',')}">
-                <div class="card-media document-preview" ${previewAttributes}>
-                    ${imageHtml}
+                <div class="card-media">
+                    <div class="document-preview" ${previewAttributes}>
+                        ${imageHtml}
+                    </div>
                 </div>
                 <div class="card-info">
                     <h3 class="card-title">${doc.title}</h3>
@@ -1425,8 +1448,12 @@
             
             return `
             <div class="content-card" data-domain="${quiz.domain}" data-tags="${quiz.tags.join(',')}">
-                <div class="card-media document-preview" data-quiz-id="${quiz.id}">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0RjRGNEYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCI+PC9jaXJjbGU+PHBhdGggZD0iTTkuMDkgOSBhMyAzIDAgMCAxIDUuODMgMWMwIDItMyAzLTMgM20wIDR2LjAxIj48L3BhdGg+PC9zdmc+" alt="Quiz">
+                <div class="card-media">
+                    <div class="document-preview" data-quiz-id="${quiz.id}">
+                        <div class="document-icon-container">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0RjRGNEYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCI+PC9jaXJjbGU+PHBhdGggZD0iTTkuMDkgOSBhMyAzIDAgMCAxIDUuODMgMWMwIDItMyAzLTMgM20wIDR2LjAxIj48L3BhdGg+PC9zdmc+" alt="Quiz" class="default-icon">
+                        </div>
+                    </div>
                 </div>
                 <div class="card-info">
                     <h3 class="card-title">${quiz.title}</h3>
