@@ -1,1564 +1,2005 @@
-// pages/index.js
-import { useState, useEffect } from 'react';
-import Head from 'next/head';
-import MainTabs from '../components/MainTabs';
-import Videotheque from '../components/Videotheque';
-import RessourcesEntreprises from '../components/RessourcesEntreprises';
-import FloNU from '../components/FloNU';
-
-export default function Home() {
-  const [activeTab, setActiveTab] = useState('videotheque');
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Head>
-        <title>Fondation Florence - Ressources</title>
-        <meta name="description" content="Plateforme de ressources pour les talents" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className="container mx-auto px-4 py-6">
-        <MainTabs activeTab={activeTab} onTabChange={handleTabChange} />
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fondation Florence</title>
+    <style>
+        /* Variables et réinitialisation CSS */
+        :root {
+            --primary-color: #2F80ED;
+            --secondary-color: #4F4F4F;
+            --background-color: #F9F9F9;
+            --light-gray: #E0E0E0;
+            --white: #FFFFFF;
+            --black: #333333;
+            --success: #27AE60;
+            --danger: #EB5757;
+        }
         
-        {activeTab === 'videotheque' && <Videotheque />}
-        {activeTab === 'ressources' && <RessourcesEntreprises />}
-        {activeTab === 'flonu' && <FloNU />}
-      </main>
-    </div>
-  );
-}
-
-// components/MainTabs.js
-export default function MainTabs({ activeTab, onTabChange }) {
-  return (
-    <div className="border-b border-gray-200 mb-6">
-      <div className="flex justify-center">
-        <nav className="flex space-x-8">
-          <button
-            onClick={() => onTabChange('videotheque')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'videotheque'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            VIDEOS
-          </button>
-          <button
-            onClick={() => onTabChange('flonu')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'flonu'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            TRAINING
-          </button>
-          <button
-            onClick={() => onTabChange('ressources')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'ressources'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            RESSOURCES
-          </button>
-        </nav>
-      </div>
-    </div>
-  );
-}
-
-// components/SearchBar.js
-export default function SearchBar({ placeholder, onSearch }) {
-  const [query, setQuery] = useState('');
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    onSearch(query);
-  };
-
-  return (
-    <div className="relative mb-6">
-      <form onSubmit={handleSearch} className="flex w-full">
-        <input
-          type="text"
-          placeholder={placeholder}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
-        <button
-          type="submit"
-          className="bg-white border border-l-0 border-gray-300 rounded-r-md px-4 flex items-center justify-center"
-        >
-          <svg
-            className="h-5 w-5 text-gray-400"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-      </form>
-    </div>
-  );
-}
-
-// components/Videotheque.js
-import { useState, useEffect } from 'react';
-import SearchBar from './SearchBar';
-
-export default function Videotheque() {
-  const [videos, setVideos] = useState([]);
-  const [filteredVideos, setFilteredVideos] = useState([]);
-  const [selectedType, setSelectedType] = useState('');
-  const [selectedDuration, setSelectedDuration] = useState('');
-  const [selectedTags, setSelectedTags] = useState([]);
-
-  // Types de vidéos
-  const videoTypes = [
-    { 
-      id: 'conferences', 
-      name: 'Conférences & Webinaire',
-      subtypes: ['Club Diplo', 'Femmes de Florence', 'Pizz\'Art', 'Webinaires']
-    },
-    { 
-      id: 'evenements', 
-      name: 'Événements',
-      subtypes: ['Soirée', 'Sport', 'Éloquence']
-    },
-    { 
-      id: 'clubs', 
-      name: 'Clubs Pros',
-      subtypes: ['InvestClub', 'Club de Négo', 'Stem Club', 'Club des cracks']
-    },
-    { 
-      id: 'tutoriels', 
-      name: 'Tutoriel',
-      subtypes: ['Talent', 'Mentor', 'Supra']
-    },
-  ];
-
-  // Liste des tags disponibles
-  const availableTags = [
-    'Finance', 'Droit', 'Entrepreneuriat', 'Conseil', 'Coaching',
-    'RH', 'Politique', 'International', 'Art et Culture'
-  ];
-
-  // Données factices de vidéos
-  useEffect(() => {
-    // Simulons une récupération de données
-    const mockVideos = [
-      {
-        id: 1,
-        title: 'Webinaire Fondation Florence — Fanny Letier',
-        type: 'conferences',
-        subtype: 'Webinaires',
-        duration: '1h15min',
-        tags: ['Finance', 'Entrepreneuriat'],
-        description: 'Fanny Letier partage son expérience et ses conseils sur l\'entrepreneuriat et l\'investissement.',
-        vimeoCode: '<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1057571258?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Club Gastronomique 2"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>'
-      },
-      {
-        id: 2,
-        title: 'Webinaire Fondation Florence - François Paillier',
-        type: 'conferences',
-        subtype: 'Webinaires',
-        duration: '45min',
-        tags: ['Finance', 'Conseil', 'RH'],
-        description: 'François Paillier présente les défis et opportunités du secteur financier.',
-        vimeoCode: '<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1057568379?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="expositions_origines_vdef"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>'
-      },
-      {
-        id: 3,
-        title: 'Conférence Anti-Racisme',
-        type: 'evenements',
-        subtype: 'Éloquence',
-        duration: '2h00',
-        tags: ['Politique', 'International', 'Art et Culture'],
-        description: 'Conférence sur la lutte contre le racisme et les discriminations.',
-        vimeoCode: '<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1057567291?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="film_antirascisme"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>'
-      },
-      {
-        id: 4,
-        title: 'Programme École 100',
-        type: 'tutoriels',
-        subtype: 'Talent',
-        duration: '30min',
-        tags: ['Coaching', 'RH', 'Art et Culture'],
-        description: 'Présentation du programme École 100 pour les talents.',
-        vimeoCode: '<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1057559485?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="ecole_100"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>'
-      },
-      {
-        id: 5,
-        title: 'Programme Talent 100',
-        type: 'tutoriels',
-        subtype: 'Talent',
-        duration: '25min',
-        tags: ['Entrepreneuriat', 'Coaching'],
-        description: 'Présentation détaillée du programme Talent 100.',
-        vimeoCode: '<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1057505542?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Talent_100"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>'
-      },
-      {
-        id: 6,
-        title: 'Devenir Mentor',
-        type: 'tutoriels',
-        subtype: 'Mentor',
-        duration: '40min',
-        tags: ['RH', 'Coaching'],
-        description: 'Guide pour devenir mentor au sein de la Fondation Florence.',
-        vimeoCode: '<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1057565997?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="mentorsv2"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>'
-      },
-      {
-        id: 7,
-        title: 'Entreprise 100',
-        type: 'clubs',
-        subtype: 'Club de Négo',
-        duration: '50min',
-        tags: ['Entrepreneuriat', 'Finance'],
-        description: 'Présentation du programme Entreprise 100 pour les entrepreneurs.',
-        vimeoCode: '<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1057561289?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="entreprise_100"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>'
-      }
-    ];
-    
-    setVideos(mockVideos);
-    setFilteredVideos(mockVideos);
-  }, []);
-
-  const handleSearch = (query) => {
-    if (!query) {
-      setFilteredVideos(videos);
-      return;
-    }
-    
-    const lowerQuery = query.toLowerCase();
-    const results = videos.filter(video => {
-      // Recherche dans le titre
-      if (video.title.toLowerCase().includes(lowerQuery)) return true;
-      
-      // Recherche dans la description
-      if (video.description.toLowerCase().includes(lowerQuery)) return true;
-      
-      // Recherche dans les tags
-      if (video.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) return true;
-      
-      return false;
-    });
-    
-    setFilteredVideos(results);
-  };
-
-  const handleTypeFilter = (type) => {
-    setSelectedType(type);
-    filterVideos(type, selectedDuration, selectedTags);
-  };
-
-  const handleDurationFilter = (duration) => {
-    setSelectedDuration(duration);
-    filterVideos(selectedType, duration, selectedTags);
-  };
-
-  const handleTagToggle = (tag) => {
-    const updatedTags = selectedTags.includes(tag)
-      ? selectedTags.filter(t => t !== tag)
-      : [...selectedTags, tag];
-    
-    setSelectedTags(updatedTags);
-    filterVideos(selectedType, selectedDuration, updatedTags);
-  };
-
-  const filterVideos = (type, duration, tags) => {
-    let results = [...videos];
-    
-    if (type) {
-      results = results.filter(video => video.type === type);
-    }
-    
-    if (duration) {
-      // Exemple de filtrage par durée (à adapter selon vos besoins)
-      if (duration === 'short') {
-        results = results.filter(video => {
-          const minutes = parseInt(video.duration.match(/(\d+)min/)[1]);
-          return minutes <= 30;
-        });
-      } else if (duration === 'medium') {
-        results = results.filter(video => {
-          const minutes = parseInt(video.duration.match(/(\d+)min/)[1]);
-          return minutes > 30 && minutes <= 60;
-        });
-      } else if (duration === 'long') {
-        results = results.filter(video => {
-          const minutes = parseInt(video.duration.match(/(\d+)min/)[1]);
-          return minutes > 60;
-        });
-      }
-    }
-    
-    if (tags.length > 0) {
-      results = results.filter(video => 
-        tags.some(tag => video.tags.includes(tag))
-      );
-    }
-    
-    setFilteredVideos(results);
-  };
-
-  return (
-    <div>
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold uppercase">VIDÉOTHÈQUE</h1>
-        <p className="text-gray-600">
-          La vidéothèque regroupe l'ensemble des vidéos et des podcasts enregistrés lors des webinaires organisés par Florence.
-        </p>
-      </div>
-
-      <SearchBar placeholder="Rechercher dans la vidéothèque" onSearch={handleSearch} />
-
-      <div className="flex flex-wrap gap-4 mb-6">
-        <div>
-          <select 
-            className="px-4 py-2 border border-gray-300 rounded-md"
-            onChange={(e) => handleTypeFilter(e.target.value)}
-            value={selectedType}
-          >
-            <option value="">Types</option>
-            {videoTypes.map(type => (
-              <option key={type.id} value={type.id}>{type.name}</option>
-            ))}
-          </select>
-        </div>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
         
-        <div>
-          <select 
-            className="px-4 py-2 border border-gray-300 rounded-md"
-            onChange={(e) => handleDurationFilter(e.target.value)}
-            value={selectedDuration}
-          >
-            <option value="">Durée</option>
-            <option value="short">Moins de 30min</option>
-            <option value="medium">30min - 1h</option>
-            <option value="long">Plus d'1h</option>
-          </select>
-        </div>
+        body {
+            background-color: var(--background-color);
+        }
+
+        /* Navigation principale */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--white);
+            border-bottom: 1px solid var(--light-gray);
+        }
         
-        <div>
-          <select 
-            className="px-4 py-2 border border-gray-300 rounded-md"
-            onChange={(e) => handleTagToggle(e.target.value)}
-            value=""
-          >
-            <option value="">Tags</option>
-            {availableTags.map(tag => (
-              <option key={tag} value={tag}>{tag}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo img {
+            height: 40px;
+        }
+        
+        .nav-main {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-main a {
+            text-decoration: none;
+            color: var(--secondary-color);
+            font-weight: 500;
+            padding: 0.5rem 0;
+        }
+        
+        .nav-main a.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .user-profile img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
 
-      {selectedTags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-6">
-          {selectedTags.map(tag => (
-            <div key={tag} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center">
-              {tag}
-              <button onClick={() => handleTagToggle(tag)} className="ml-2">
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+        /* Sous-navigation */
+        .sub-nav {
+            display: flex;
+            justify-content: center;
+            background-color: var(--white);
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .sub-nav a {
+            padding: 0.5rem 1.5rem;
+            text-decoration: none;
+            color: var(--secondary-color);
+            margin: 0 1rem;
+        }
+        
+        .sub-nav a.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredVideos.map(video => (
-          <div key={video.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="p-0" dangerouslySetInnerHTML={{ __html: video.vimeoCode }} />
-            <div className="p-4">
-              <h3 className="text-lg font-semibold mb-2">{video.title}</h3>
-              <div className="flex gap-2 mb-2">
-                <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                  {video.duration}
-                </span>
-                {video.tags.map(tag => (
-                  <span key={tag} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <p className="text-gray-600 text-sm">{video.description}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+        /* Conteneur principal */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--black);
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-description {
+            color: var(--secondary-color);
+            margin-bottom: 2rem;
+        }
+
+        /* Barre de recherche */
+        .search-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-size: 1rem;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+        }
+
+        /* Filtres */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-dropdown {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            background-color: var(--white);
+            min-width: 150px;
+            cursor: pointer;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            background-color: var(--white);
+            cursor: pointer;
+        }
+        
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        /* Grille de contenu */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .content-card {
+            background-color: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .card-media {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* Ratio 16:9 */
+        }
+        
+        .card-media iframe, .card-media .document-preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .document-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-gray);
+        }
+        
+        .document-preview img {
+            width: 40px;
+            opacity: 0.6;
+        }
+        
+        .card-info {
+            padding: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--black);
+        }
+        
+        .card-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+        
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .tag {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.5rem;
+            background-color: var(--light-gray);
+            border-radius: 4px;
+            color: var(--secondary-color);
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            cursor: pointer;
+        }
+
+        /* Onglets Flo NU */
+        .tertiary-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        
+        .tertiary-nav button {
+            padding: 0.7rem 1.5rem;
+            background-color: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        
+        .tertiary-nav button.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        /* Quiz */
+        .quiz-container {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .quiz-title {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: var(--black);
+        }
+        
+        .quiz-question {
+            margin-bottom: 2rem;
+        }
+        
+        .question-text {
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+        
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .answer-option {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .answer-option.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(47, 128, 237, 0.05);
+        }
+        
+        .answer-option.correct {
+            border-color: var(--success);
+            background-color: rgba(39, 174, 96, 0.05);
+        }
+        
+        .answer-option.incorrect {
+            border-color: var(--danger);
+            background-color: rgba(235, 87, 87, 0.05);
+        }
+        
+        .explanation {
+            background-color: rgba(47, 128, 237, 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .quiz-actions {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .quiz-btn {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .quiz-btn:disabled {
+            background-color: var(--light-gray);
+            color: var(--secondary-color);
+            cursor: not-allowed;
+        }
+
+        /* Document Viewer */
+        .document-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .document-viewer.active {
+            display: flex;
+        }
+        
+        .viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--white);
+        }
+        
+        .viewer-title {
+            font-weight: 500;
+        }
+        
+        .close-viewer {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .document-frame {
+            flex: 1;
+            border: none;
+        }
+
+        /* Entretiens blancs */
+        .booking-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .booking-card {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .booking-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--black);
+        }
+        
+        .booking-meta {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .booking-btn {
+            display: block;
+            width: 100%;
+            padding: 0.8rem 0;
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 1rem;
+        }
+
+        /* Contenu caché par défaut */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sous-navigation -->
+    <div class="sub-nav">
+        <a href="#" class="main-tab active" data-tab="videotheque">VIDÉOS</a>
+        <a href="#" class="main-tab" data-tab="training">TRAINING</a>
+        <a href="#" class="main-tab" data-tab="ressources">RESSOURCES</a>
     </div>
-  );
-}
 
-// components/RessourcesEntreprises.js
-import { useState, useEffect } from 'react';
-import SearchBar from './SearchBar';
-
-export default function RessourcesEntreprises() {
-  const [documents, setDocuments] = useState([]);
-  const [filteredDocuments, setFilteredDocuments] = useState([]);
-  const [selectedEntreprise, setSelectedEntreprise] = useState('');
-  const [openDocument, setOpenDocument] = useState(null);
-
-  // Données factices de documents d'entreprises
-  useEffect(() => {
-    const mockDocuments = [
-      {
-        id: 1,
-        title: 'Présentation de la Fondation Florence',
-        entreprise: 'Fondation Florence',
-        url: 'https://fondationflorence.my.salesforce.com/sfc/p/07000000ZXDA/a/Jv000008dV0v/0TMCzmlen00i_Qo_I.QsMC.TuDGY3FjaoAWbNLnAVwY',
-        tags: ['présentation', 'mission', 'fondation']
-      },
-      {
-        id: 2,
-        title: 'Guide du mentorat',
-        entreprise: 'Fondation Florence',
-        url: 'https://engagement-guide-du-supr-rebzrbp.gamma.site/',
-        tags: ['mentorat', 'guide', 'accompagnement']
-      },
-      {
-        id: 3,
-        title: 'Partenariat KPMG',
-        entreprise: 'KPMG',
-        url: 'https://florence-mentorship-cd8wzmm.gamma.site/copy-of-engagement-guide',
-        tags: ['kpmg', 'partenariat', 'audit']
-      }
-    ];
-    
-    setDocuments(mockDocuments);
-    setFilteredDocuments(mockDocuments);
-  }, []);
-
-  const handleSearch = (query) => {
-    if (!query) {
-      setFilteredDocuments(documents);
-      return;
-    }
-    
-    const lowerQuery = query.toLowerCase();
-    const results = documents.filter(doc => {
-      if (doc.title.toLowerCase().includes(lowerQuery)) return true;
-      if (doc.entreprise.toLowerCase().includes(lowerQuery)) return true;
-      if (doc.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) return true;
-      
-      return false;
-    });
-    
-    setFilteredDocuments(results);
-  };
-
-  const handleEntrepriseFilter = (entreprise) => {
-    setSelectedEntreprise(entreprise);
-    
-    if (!entreprise) {
-      setFilteredDocuments(documents);
-      return;
-    }
-    
-    const results = documents.filter(doc => doc.entreprise === entreprise);
-    setFilteredDocuments(results);
-  };
-
-  const openDocumentViewer = (doc) => {
-    setOpenDocument(doc);
-  };
-
-  const closeDocumentViewer = () => {
-    setOpenDocument(null);
-  };
-
-  // Extraire la liste des entreprises uniques
-  const entreprises = [...new Set(documents.map(doc => doc.entreprise))];
-
-  return (
-    <div>
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold uppercase">RESSOURCES</h1>
-        <p className="text-gray-600">
-          Cette section contient tous les documents essentiels au fonctionnement de la fondation Florence et à l'information des talents.
-        </p>
-      </div>
-
-      <SearchBar placeholder="Rechercher dans les ressources" onSearch={handleSearch} />
-
-      <div className="flex mb-6 overflow-x-auto space-x-2">
-        <button
-          onClick={() => handleEntrepriseFilter('')}
-          className={`px-4 py-2 rounded-md ${
-            selectedEntreprise === '' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-          }`}
-        >
-          Tous
-        </button>
-        <button
-          onClick={() => handleEntrepriseFilter('Fondation Florence')}
-          className={`px-4 py-2 rounded-md ${
-            selectedEntreprise === 'Fondation Florence' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-          }`}
-        >
-          À propos de Florence
-        </button>
-        <button
-          onClick={() => handleEntrepriseFilter('Guides')}
-          className={`px-4 py-2 rounded-md ${
-            selectedEntreprise === 'Guides' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-          }`}
-        >
-          Guides pratiques
-        </button>
-        <button
-          onClick={() => handleEntrepriseFilter('KPMG')}
-          className={`px-4 py-2 rounded-md whitespace-nowrap ${
-            selectedEntreprise === 'KPMG' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-          }`}
-        >
-          Entreprises partenaires
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredDocuments.map(doc => (
-          <div key={doc.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="p-6 flex flex-col items-center">
-              <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center mb-4">
-                <svg className="h-8 w-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-center">{doc.title}</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                {doc.entreprise}
-              </p>
-              <div className="flex gap-2 flex-wrap justify-center mb-4">
-                {doc.tags.map(tag => (
-                  <span key={tag} className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <button
-                onClick={() => openDocumentViewer(doc)}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-              >
-                Consulter
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {openDocument && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg overflow-hidden w-full max-w-4xl max-h-screen flex flex-col">
-            <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="font-bold">{openDocument.title}</h3>
-              <button onClick={closeDocumentViewer} className="text-gray-500 hover:text-gray-700">
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="flex-grow overflow-hidden">
-              <iframe 
-                src={openDocument.url} 
-                className="w-full h-full"
-                style={{ minHeight: '80vh' }}
-                title={openDocument.title}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// components/FloNU.js
-import { useState } from 'react';
-import FichesRevision from './FloNU/FichesRevision';
-import QuizEvaluation from './FloNU/QuizEvaluation';
-import CasPratiques from './FloNU/CasPratiques';
-import RessourcesEntretiens from './FloNU/RessourcesEntretiens';
-
-export default function FloNU() {
-  const [activeSubTab, setActiveSubTab] = useState('fiches');
-
-  return (
-    <div>
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold uppercase">TRAINING</h1>
-        <p className="text-gray-600">
-          La section training est dédiée à l'entraînement et à l'orientation des talents dans leurs domaines professionnels respectifs.
-        </p>
-      </div>
-
-      <div className="mb-6">
-        <select 
-          className="w-full px-4 py-2 border border-gray-300 rounded-md mb-6"
-          value="default"
-        >
-          <option value="default">Sélectionner un domaine</option>
-          <option value="droit">Droit</option>
-          <option value="finance">Finance de Marché</option>
-          <option value="consulting">Consulting</option>
-        </select>
-
-        <div className="flex mb-6 overflow-x-auto space-x-2">
-          <button
-            onClick={() => setActiveSubTab('fiches')}
-            className={`px-4 py-2 rounded-md ${
-              activeSubTab === 'fiches' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            Révisions
-          </button>
-          <button
-            onClick={() => setActiveSubTab('quiz')}
-            className={`px-4 py-2 rounded-md ${
-              activeSubTab === 'quiz' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            Quiz
-          </button>
-          <button
-            onClick={() => setActiveSubTab('cas')}
-            className={`px-4 py-2 rounded-md ${
-              activeSubTab === 'cas' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            Cas pratiques
-          </button>
-          <button
-            onClick={() => setActiveSubTab('entretiens')}
-            className={`px-4 py-2 rounded-md ${
-              activeSubTab === 'entretiens' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            Préparer son entretien
-          </button>
-        </div>
-      </div>
-
-      {activeSubTab === 'fiches' && <FichesRevision />}
-      {activeSubTab === 'quiz' && <QuizEvaluation />}
-      {activeSubTab === 'cas' && <CasPratiques />}
-      {activeSubTab === 'entretiens' && <RessourcesEntretiens />}
-    </div>
-  );
-}
-
-// components/FloNU/FichesRevision.js
-import { useState, useEffect } from 'react';
-import SearchBar from '../SearchBar';
-
-export default function FichesRevision() {
-  const [fiches, setFiches] = useState([]);
-  const [filteredFiches, setFilteredFiches] = useState([]);
-  const [openFiche, setOpenFiche] = useState(null);
-  
-  useEffect(() => {
-    // Données factices de fiches de révision
-    const mockFiches = [
-      {
-        id: 1,
-        title: 'Les fondamentaux du droit des sociétés',
-        duration: '20min',
-        domaine: 'droit',
-        tags: ['droit', 'sociétés', 'fondamentaux'],
-        resume: 'Fiche synthétique sur les fondamentaux du droit des sociétés.',
-        url: 'https://fondationflorence.my.salesforce.com/sfc/p/07000000ZXDA/a/Jv000008dV0v/0TMCzmlen00i_Qo_I.QsMC.TuDGY3FjaoAWbNLnAVwY'
-      },
-      {
-        id: 2,
-        title: 'Introduction aux produits dérivés',
-        duration: '25min',
-        domaine: 'finance',
-        tags: ['finance', 'dérivés', 'marchés'],
-        resume: 'Fiche de révision sur les produits dérivés et leur fonctionnement.',
-        url: 'https://engagement-guide-du-supr-rebzrbp.gamma.site/'
-      },
-      {
-        id: 3,
-        title: 'Méthodologie de résolution de cas en consulting',
-        duration: '30min',
-        domaine: 'consulting',
-        tags: ['consulting', 'méthodologie', 'cas'],
-        resume: 'Méthodologie et framework pour résoudre des cas de consulting.',
-        url: 'https://florence-mentorship-cd8wzmm.gamma.site/copy-of-engagement-guide'
-      }
-    ];
-    
-    setFiches(mockFiches);
-    setFilteredFiches(mockFiches);
-  }, []);
-
-  const handleSearch = (query) => {
-    if (!query) {
-      setFilteredFiches(fiches);
-      return;
-    }
-    
-    const lowerQuery = query.toLowerCase();
-    const results = fiches.filter(fiche => {
-      if (fiche.title.toLowerCase().includes(lowerQuery)) return true;
-      if (fiche.domaine.toLowerCase().includes(lowerQuery)) return true;
-      if (fiche.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) return true;
-      if (fiche.resume.toLowerCase().includes(lowerQuery)) return true;
-      
-      return false;
-    });
-    
-    setFilteredFiches(results);
-  };
-
-  const openFicheViewer = (fiche) => {
-    setOpenFiche(fiche);
-  };
-
-  const closeFicheViewer = () => {
-    setOpenFiche(null);
-  };
-
-  return (
-    <div>
-      <SearchBar placeholder="Rechercher dans les fiches de révision" onSearch={handleSearch} />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredFiches.map(fiche => (
-          <div key={fiche.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="p-6 flex flex-col items-center">
-              <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center mb-4">
-                <svg className="h-8 w-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-center">{fiche.title}</h3>
-              <div className="flex gap-2 mb-2">
-                <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                  Durée de lecture: {fiche.duration}
-                </span>
-                <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                  Domaine: {fiche.domaine}
-                </span>
-              </div>
-              <div className="flex gap-2 flex-wrap justify-center mb-4">
-                {fiche.tags.map(tag => (
-                  <span key={tag} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <p className="text-sm text-gray-600 mb-4 text-center">
-                {fiche.resume}
-              </p>
-              <button
-                onClick={() => openFicheViewer(fiche)}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-              >
-                Consulter
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {openFiche && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg overflow-hidden w-full max-w-4xl max-h-screen flex flex-col">
-            <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="font-bold">{openFiche.title}</h3>
-              <button onClick={closeFicheViewer} className="text-gray-500 hover:text-gray-700">
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="flex-grow overflow-hidden">
-              <iframe 
-                src={openFiche.url} 
-                className="w-full h-full"
-                style={{ minHeight: '80vh' }}
-                title={openFiche.title}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// components/FloNU/QuizEvaluation.js
-import { useState, useEffect } from 'react';
-import SearchBar from '../SearchBar';
-
-export default function QuizEvaluation() {
-  const [quizzes, setQuizzes] = useState([]);
-  const [filteredQuizzes, setFilteredQuizzes] = useState([]);
-  const [activeQuiz, setActiveQuiz] = useState(null);
-  const [userAnswers, setUserAnswers] = useState({});
-  const [quizCompleted, setQuizCompleted] = useState(false);
-
-  useEffect(() => {
-    // Données factices de quiz
-    const mockQuizzes = [
-      {
-        id: 1,
-        title: 'Quiz 1 - M&A (Fusions & Acquisitions)',
-        domaine: 'finance',
-        tags: ['finance', 'm&a', 'entreprise'],
-        questions: [
-          {
-            id: 1,
-            question: 'Quel est l\'objectif principal d\'une opération de fusion-acquisition ?',
-            options: [
-              'Réduire le capital de l\'entreprise acheteuse',
-              'Créer de la valeur en combinant les forces des entreprises fusionnées',
-              'Limiter l\'exposition aux marchés financiers'
-            ],
-            correctAnswer: 1,
-            explanation: 'L\'objectif clé d\'une fusion-acquisition est de générer de la valeur en réalisant des synergies (économies d\'échelle, accès à de nouveaux marchés, optimisation des coûts, etc.). L\'idée est que l\'ensemble vaut plus que la somme des parties.'
-          },
-          {
-            id: 2,
-            question: 'Quelle est la différence principale entre une fusion et une acquisition ?',
-            options: [
-              'Dans une fusion, les entreprises fusionnent en une seule entité, alors que dans une acquisition, l\'une prend le contrôle de l\'autre',
-              'Une fusion implique forcément une transaction en cash, tandis qu\'une acquisition utilise uniquement des actions',
-              'Une fusion est toujours amicale, tandis qu\'une acquisition est forcément hostile'
-            ],
-            correctAnswer: 0,
-            explanation: 'Une fusion consiste à combiner deux entreprises pour en former une nouvelle, tandis qu\'une acquisition implique que l\'une absorbe l\'autre, qui peut disparaître ou rester une filiale. Une acquisition peut être amicale ou hostile, contrairement à une idée reçue.'
-          },
-          {
-            id: 3,
-            question: 'Quelle méthode est la plus couramment utilisée pour valoriser une entreprise dans une opération de M&A ?',
-            options: [
-              'La méthode des flux de trésorerie actualisés (DCF - Discounted Cash Flow)',
-              'L\'analyse des coûts fixes et variables',
-              'Le calcul du coût du capital propre'
-            ],
-            correctAnswer: 0,
-            explanation: 'La méthode DCF consiste à estimer la valeur future des flux de trésorerie générés par l\'entreprise et à les actualiser pour obtenir une valeur présente. C\'est une approche robuste, bien que souvent complétée par d\'autres méthodes (comparables boursiers, transactions similaires, etc.).'
-          },
-          {
-            id: 4,
-            question: 'Qu\'est-ce qu\'une synergie dans une opération de fusion-acquisition ?',
-            options: [
-              'Une hausse automatique du cours de bourse après l\'opération',
-              'Les économies de coûts ou gains de revenus générés par la combinaison des entreprises',
-              'Une prime versée aux actionnaires de l\'entreprise cible'
-            ],
-            correctAnswer: 1,
-            explanation: 'Les synergies sont les bénéfices attendus d\'une fusion-acquisition, qu\'ils soient financiers (réduction des coûts, économies d\'échelle) ou stratégiques (accès à un nouveau marché, innovation commune, etc.). Elles justifient en grande partie le prix payé par l\'acheteur.'
-          },
-          {
-            id: 5,
-            question: 'Qu\'est-ce qu\'une offre publique d\'achat (OPA) hostile ?',
-            options: [
-              'Une tentative de rachat contre la volonté du conseil d\'administration de la cible',
-              'Une fusion entre deux entreprises concurrentes',
-              'Un rachat effectué sans emprunt bancaire'
-            ],
-            correctAnswer: 0,
-            explanation: 'Une OPA hostile est une offre de rachat faite directement aux actionnaires d\'une entreprise sans l\'accord de son conseil d\'administration. Cela peut entraîner des résistances et des stratégies de défense comme le poison pill ou le white knight.'
-          }
-        ]
-      },
-      {
-        id: 2,
-        title: 'Quiz 2 - M&A (Fusions & Acquisitions) avancé',
-        domaine: 'finance',
-        tags: ['finance', 'm&a', 'avancé'],
-        questions: [
-          {
-            id: 1,
-            question: 'Quelle est la principale raison d\'un rachat financé par effet de levier (LBO - Leveraged Buyout) ?',
-            options: [
-              'Maximiser la rentabilité pour les investisseurs en utilisant une forte part de dette',
-              'Éviter de mobiliser trop de fonds propres pour un rachat',
-              'Éviter toute dilution des actionnaires existants'
-            ],
-            correctAnswer: 0,
-            explanation: 'Un LBO repose sur l\'idée que l\'endettement permet d\'augmenter le rendement pour les investisseurs. L\'acquéreur finance le rachat principalement par dette, remboursée avec les futurs flux de trésorerie de la société cible.'
-          },
-          {
-            id: 2,
-            question: 'Lors d\'une acquisition, que signifie le terme "earn-out" ?',
-            options: [
-              'Une clause qui permet à l\'entreprise cible d\'acheter des actions de l\'acheteur',
-              'Un paiement conditionnel basé sur la performance future de l\'entreprise cible',
-              'Une option pour les actionnaires minoritaires de revendre leurs parts à l\'acquéreur'
-            ],
-            correctAnswer: 1,
-            explanation: 'Un earn-out est un paiement différé et conditionnel que l\'acquéreur verse au vendeur si la société atteint certains objectifs financiers ou stratégiques après la transaction. Cela permet de partager le risque entre acheteur et vendeur.'
-          },
-          {
-            id: 3,
-            question: 'Quelle est la principale méthode de défense contre une OPA hostile ?',
-            options: [
-              'Le "poison pill", qui consiste à rendre l\'acquisition plus coûteuse pour l\'attaquant',
-              'Un rachat massif des actions par le management',
-              'La réduction volontaire du cours de l\'action'
-            ],
-            correctAnswer: 0,
-            explanation: 'Le poison pill est une tactique anti-OPA où la société cible émet de nouvelles actions ou modifie sa structure pour rendre l\'acquisition prohibitive pour l\'acheteur hostile. D\'autres stratégies incluent le white knight (recherche d\'un acheteur amical).'
-          }
-        ]
-      },
-      {
-        id: 3,
-        title: 'Quiz 3 - Consulting & Stratégie',
-        domaine: 'consulting',
-        tags: ['consulting', 'stratégie', 'fondamentaux'],
-        questions: [
-          {
-            id: 1,
-            question: 'Quelle est la principale mission d\'un consultant en stratégie ?',
-            options: [
-              'Aider les entreprises à améliorer leur compétitivité et leur rentabilité grâce à des recommandations stratégiques',
-              'Gérer la comptabilité et le reporting financier des entreprises',
-              'Accompagner les sociétés dans l\'implémentation de logiciels ERP'
-            ],
-            correctAnswer: 0,
-            explanation: 'Un consultant en stratégie analyse les défis d\'une entreprise et propose des solutions pour améliorer sa position concurrentielle (croissance, digitalisation, réduction des coûts, diversification, etc.).'
-          },
-          {
-            id: 2,
-            question: 'Quelle méthodologie est la plus souvent utilisée en consulting pour structurer une analyse stratégique ?',
-            options: [
-              'L\'approche MECE (Mutually Exclusive, Collectively Exhaustive)',
-              'La théorie des jeux appliquée aux fusions-acquisitions',
-              'L\'analyse des écarts de bilan comptable'
-            ],
-            correctAnswer: 0,
-            explanation: 'Le MECE est un principe fondamental du conseil en stratégie, où les catégories d\'analyse doivent être mutuellement exclusives (aucun chevauchement) et collectivement exhaustives (pas d\'oubli de cas possibles).'
-          },
-          {
-            id: 3,
-            question: 'Dans une étude de marché, quel est l\'objectif principal d\'une analyse SWOT ?',
-            options: [
-              'Identifier les forces, faiblesses, opportunités et menaces d\'une entreprise',
-              'Comparer la rentabilité de l\'entreprise avec celle de ses concurrents',
-              'Évaluer la satisfaction des employés par rapport à la gouvernance'
-            ],
-            correctAnswer: 0,
-            explanation: 'L\'analyse SWOT (Strengths, Weaknesses, Opportunities, Threats) est un outil essentiel en consulting pour comprendre la position stratégique d\'une entreprise face à son marché et ses concurrents.'
-          }
-        ]
-      }
-    ];
-    
-    setQuizzes(mockQuizzes);
-    setFilteredQuizzes(mockQuizzes);
-  }, []);
-
-  const handleSearch = (query) => {
-    if (!query) {
-      setFilteredQuizzes(quizzes);
-      return;
-    }
-    
-    const lowerQuery = query.toLowerCase();
-    const results = quizzes.filter(quiz => {
-      if (quiz.title.toLowerCase().includes(lowerQuery)) return true;
-      if (quiz.domaine.toLowerCase().includes(lowerQuery)) return true;
-      if (quiz.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) return true;
-      
-      return false;
-    });
-    
-    setFilteredQuizzes(results);
-  };
-
-  const startQuiz = (quiz) => {
-    setActiveQuiz(quiz);
-    setUserAnswers({});
-    setQuizCompleted(false);
-  };
-
-  const handleAnswerSelect = (questionId, optionIndex) => {
-    setUserAnswers({
-      ...userAnswers,
-      [questionId]: optionIndex
-    });
-  };
-
-  const submitQuiz = () => {
-    setQuizCompleted(true);
-  };
-
-  const closeQuiz = () => {
-    setActiveQuiz(null);
-    setUserAnswers({});
-    setQuizCompleted(false);
-  };
-
-  const calculateScore = () => {
-    if (!activeQuiz) return 0;
-    
-    let correct = 0;
-    activeQuiz.questions.forEach(question => {
-      if (userAnswers[question.id] === question.correctAnswer) {
-        correct++;
-      }
-    });
-    
-    return Math.round((correct / activeQuiz.questions.length) * 100);
-  };
-
-  return (
-    <div>
-      <SearchBar placeholder="Rechercher dans les quiz" onSearch={handleSearch} />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredQuizzes.map(quiz => (
-          <div key={quiz.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="p-6 flex flex-col items-center">
-              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                <svg className="h-8 w-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-center">{quiz.title}</h3>
-              <div className="flex gap-2 mb-4">
-                <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                  Domaine: {quiz.domaine}
-                </span>
-                <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                  Questions: {quiz.questions.length}
-                </span>
-              </div>
-              <div className="flex gap-2 flex-wrap justify-center mb-4">
-                {quiz.tags.map(tag => (
-                  <span key={tag} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <button
-                onClick={() => startQuiz(quiz)}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-              >
-                Commencer le quiz
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {activeQuiz && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg overflow-hidden w-full max-w-3xl max-h-screen flex flex-col">
-            <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="font-bold">{activeQuiz.title}</h3>
-              <button onClick={closeQuiz} className="text-gray-500 hover:text-gray-700">
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+    <!-- Conteneur principal -->
+    <div class="main-container">
+        <!-- Vidéothèque -->
+        <div id="videotheque" class="tab-content active">
+            <h1 class="section-title">VIDÉOTHÈQUE</h1>
+            <p class="section-description">La vidéothèque regroupe l'ensemble des vidéos et des podcasts enregistrés lors des webinaires organisés par Florence.</p>
+            
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Rechercher dans la vidéothèque" id="video-search">
+                <span class="search-icon">🔍</span>
             </div>
             
-            <div className="flex-grow overflow-y-auto p-6">
-              {!quizCompleted ? (
-                <>
-                  {activeQuiz.questions.map((question, index) => (
-                    <div key={question.id} className="mb-8">
-                      <h4 className="font-medium text-lg mb-3">
-                        {index + 1}. {question.question}
-                      </h4>
-                      <div className="space-y-2">
-                        {question.options.map((option, optionIndex) => (
-                          <div key={optionIndex} className="flex items-center">
-                            <input
-                              type="radio"
-                              id={`q${question.id}-option${optionIndex}`}
-                              name={`question-${question.id}`}
-                              value={optionIndex}
-                              checked={userAnswers[question.id] === optionIndex}
-                              onChange={() => handleAnswerSelect(question.id, optionIndex)}
-                              className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                            />
-                            <label
-                              htmlFor={`q${question.id}-option${optionIndex}`}
-                              className="ml-3 block text-gray-700"
-                            >
-                              {option}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  
-                  <div className="mt-8 flex justify-center">
-                    <button
-                      onClick={submitQuiz}
-                      className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600"
-                      disabled={Object.keys(userAnswers).length !== activeQuiz.questions.length}
-                    >
-                      Valider mes réponses
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-                    <div className="flex">
-                      <div className="flex-shrink-0">
-                        <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm text-blue-700">
-                          Votre score: <span className="font-bold">{calculateScore()}%</span>
-                        </p>
-                        {calculateScore() >= 80 ? (
-                          <p className="text-sm text-green-600 mt-1">Excellent ! Vous maîtrisez ce sujet.</p>
-                        ) : calculateScore() >= 60 ? (
-                          <p className="text-sm text-blue-600 mt-1">Bon travail. Revoyez quelques concepts pour vous améliorer.</p>
-                        ) : (
-                          <p className="text-sm text-red-600 mt-1">Nous vous recommandons de revoir les fiches de révision sur ce sujet.</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {activeQuiz.questions.map((question, index) => {
-                    const isCorrect = userAnswers[question.id] === question.correctAnswer;
-                    
-                    return (
-                      <div key={question.id} className="mb-8">
-                        <h4 className="font-medium text-lg mb-3">
-                          {index + 1}. {question.question}
-                        </h4>
-                        <div className="space-y-2">
-                          {question.options.map((option, optionIndex) => (
-                            <div 
-                              key={optionIndex} 
-                              className={`p-3 rounded ${
-                                optionIndex === question.correctAnswer 
-                                  ? 'bg-green-100 border border-green-400' 
-                                  : userAnswers[question.id] === optionIndex
-                                    ? 'bg-red-100 border border-red-400'
-                                    : 'bg-gray-50 border border-gray-200'
-                              }`}
-                            >
-                              {option}
-                            </div>
-                          ))}
-                        </div>
-                        
-                        <div className={`mt-3 p-3 border-l-4 rounded ${
-                          isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'
-                        }`}>
-                          <p className={`text-sm ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-                            <span className="font-bold">
-                              {isCorrect ? '✓ Correct' : '✗ Incorrect'}
-                            </span>
-                            <br />
-                            <span className="font-bold">Explication: </span>
-                            {question.explanation}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  
-                  <div className="mt-8 flex justify-center">
-                    <button
-                      onClick={closeQuiz}
-                      className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600"
-                    >
-                      Terminer
-                    </button>
-                  </div>
-                </>
-              )}
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Tous</button>
+                <select class="filter-dropdown" id="type-filter">
+                    <option value="">Types</option>
+                    <option value="webinaire">Webinaire</option>
+                    <option value="podcast">Podcast</option>
+                    <option value="interview">Interview</option>
+                </select>
+                <select class="filter-dropdown" id="duration-filter">
+                    <option value="">Durée</option>
+                    <option value="short">Moins de 30 min</option>
+                    <option value="medium">30 min - 1h</option>
+                    <option value="long">Plus d'1h</option>
+                </select>
+                <select class="filter-dropdown" id="tag-filter">
+                    <option value="">Tags</option>
+                    <option value="finance">Finance</option>
+                    <option value="droit">Droit</option>
+                    <option value="entrepreneuriat">Entrepreneuriat</option>
+                    <option value="conseil">Conseil</option>
+                    <option value="coaching">Coaching</option>
+                    <option value="rh">RH</option>
+                    <option value="politique">Politique</option>
+                    <option value="international">International</option>
+                </select>
             </div>
-          </div>
+            
+            <div class="content-grid" id="videos-grid">
+                <!-- Les vidéos seront générées ici par JavaScript -->
+            </div>
         </div>
-      )}
-    </div>
-  );
-}
 
-// components/FloNU/CasPratiques.js
-import { useState, useEffect } from 'react';
-import SearchBar from '../SearchBar';
-
-export default function CasPratiques() {
-  const [casPratiques, setCasPratiques] = useState([]);
-  const [filteredCas, setFilteredCas] = useState([]);
-  const [selectedCas, setSelectedCas] = useState(null);
-  const [showSolution, setShowSolution] = useState(false);
-  
-  useEffect(() => {
-    // Données factices de cas pratiques
-    const mockCasPratiques = [
-      {
-        id: 1,
-        title: 'Analyse de rentabilité d\'une chaîne de supermarchés',
-        domaine: 'consulting',
-        duration: '45min',
-        tags: ['consulting', 'retail', 'stratégie'],
-        enonce: `Votre client est un groupe de supermarchés. Le groupe dispose de 200 magasins répartis sur le territoire sans biais particulier. Le supermarché type dispose d'une surface de 2000m² et se trouve généralement dans des zones péri-urbaines : accès plutôt en voiture ou en marchant, petit parking devant le magasin, devantures limitées. Le client a besoin de vous pour comprendre l'érosion de la rentabilité du réseau et de construire un plan d'amélioration. Le chiffre d'affaires est de 2Bn€ avec une rentabilité (EBITDA) de 5% ce qui est inférieur aux concurrents qui parviennent pour certains à atteindre 10%.`,
-        solution: `a/ La première étape consiste à bien comprendre la décomposition du P&L, qui peut être assez surprenant. Une première discussion consiste à identifier les principaux postes et à les quantifier en grosses mailles. Les achats constituent évidemment le gros du P&L, ce qui donne des marges brutes très basses (aux alentours de 20%). Viennent ensuite les frais de personnel, les loyers, les consommations d'électricité notamment (réfrigérateurs).
-
-Il existe un autre poste de coûts important, sauriez-vous réfléchir à ce que cela peut être ? Imaginez ce qu'est la vie d'un supermarché ?
-
-Le poste qui s'appelle « casse » est effectivement assez important, il comprend la casse des denrées pendant les mises en magasin, les articles périmés et le vol. Il peut représenter jusqu'à 2% du CA.
-
-b/ Exercice de dimensionnement : que représentent les frais de personnel dans un supermarché en % du CA ?
-
-Réponse : imaginons un supermarché standard. Son CA est de 10m€ (2bn€ / 200 magasins). 2000m² correspond pour les parisiens à un grand Carrefour Market. Il faut savoir qu'il y a environ 1 caissier pour 1 back office. 1 manager et 1 comptable. Pour trouver le nombre de caissiers : les magasins sont ouverts environ 12h dans la journée. Il faut qu'il y ait toujours 2 caisses ouvertes. Les magasins sont également ouverts le samedi. On trouve qu'il faut entre 5 et 6 caissiers. Disons donc que le staff est en tout décomposé comme : 1 manager (6k/m avec charges), 1 comptable (4k€/m avec charges), 12 personnes en magasin (3k€/m avec charges) soit 46k€ par mois => Environ 550k€ par an ce qui fait 5.5% du CA`
-      },
-      {
-        id: 2,
-        title: 'Estimation de marché pour un lancement de produit',
-        domaine: 'consulting',
-        duration: '30min',
-        tags: ['consulting', 'market sizing', 'lancement'],
-        enonce: `Votre client est un fabricant de smartphones qui souhaite lancer un nouveau téléphone pliable haut de gamme. Estimez la taille du marché européen pour ce produit et proposez une stratégie de lancement.`,
-        solution: `Pour estimer la taille du marché européen pour un smartphone pliable haut de gamme, nous pouvons utiliser l'approche top-down :
-
-1. Population de l'UE : environ 450 millions
-2. Taux de pénétration des smartphones : environ 80% = 360 millions d'utilisateurs
-3. Renouvellement moyen tous les 2-3 ans, donc 120-180 millions de nouveaux smartphones par an
-4. Part de marché du haut de gamme : environ 20% = 24-36 millions de smartphones haut de gamme par an
-5. Intérêt potentiel pour les téléphones pliables dans ce segment : estimé à 5-10% initialement
-6. Marché potentiel : 1,2 à 3,6 millions d'unités par an
-
-Pour la stratégie de lancement, je recommanderais :
-- Un lancement progressif, en commençant par les marchés les plus développés (Allemagne, France, UK)
-- Partenariats avec des opérateurs premium
-- Programme de reprise avantageux des anciens appareils
-- Fortes activités marketing centrées sur l'innovation et l'exclusivité`
-      },
-      {
-        id: 3,
-        title: 'Évaluation d\'une acquisition stratégique',
-        domaine: 'finance',
-        duration: '60min',
-        tags: ['finance', 'm&a', 'valorisation'],
-        enonce: `Vous êtes conseiller financier pour une grande entreprise pharmaceutique qui envisage d'acquérir une biotech spécialisée dans l'immunothérapie. La cible a un médicament prometteur en phase III, avec 70% de chances d'approbation selon les experts. Proposez une méthode pour valoriser cette acquisition et les points d'attention clés pour la transaction.`,
-        solution: `Pour valoriser cette acquisition, je recommande une approche DCF (Discounted Cash Flow) ajustée par les probabilités, complétée par une analyse des comparables :
-
-1. DCF ajusté par les probabilités :
-   - Modéliser les revenus potentiels du médicament en phase III en cas de succès
-   - Ajuster les flux de trésorerie futurs par la probabilité de succès (70%)
-   - Tenir compte des différents scénarios d'approbation (complète, partielle, retardée)
-   - Actualiser avec un taux reflétant le risque (WACC de 10-12% typique pour ce secteur)
-
-2. Analyse des transactions comparables :
-   - Identifier des acquisitions récentes de biotechs à un stade similaire
-   - Analyser les multiples payés (VE/EBITDA prévisionnel, prix/potentiel de ventes peak)
-
-Points d'attention clés :
-- Structure de la transaction : prévoir des paiements d'étape (milestones) liés au succès
-- Protections de PI et durée des brevets
-- Évaluation des autres actifs du pipeline
-- Due diligence approfondie sur les données cliniques et risques réglementaires
-- Synergies potentielles avec le portefeuille existant (R&D, commercial)
-- Analyse des risques de concurrence et de substitution`
-      }
-    ];
-    
-    setCasPratiques(mockCasPratiques);
-    setFilteredCas(mockCasPratiques);
-  }, []);
-
-  const handleSearch = (query) => {
-    if (!query) {
-      setFilteredCas(casPratiques);
-      return;
-    }
-    
-    const lowerQuery = query.toLowerCase();
-    const results = casPratiques.filter(cas => {
-      if (cas.title.toLowerCase().includes(lowerQuery)) return true;
-      if (cas.domaine.toLowerCase().includes(lowerQuery)) return true;
-      if (cas.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) return true;
-      if (cas.enonce.toLowerCase().includes(lowerQuery)) return true;
-      
-      return false;
-    });
-    
-    setFilteredCas(results);
-  };
-
-  const openCas = (cas) => {
-    setSelectedCas(cas);
-    setShowSolution(false);
-  };
-
-  const closeCas = () => {
-    setSelectedCas(null);
-    setShowSolution(false);
-  };
-
-  const toggleSolution = () => {
-    setShowSolution(!showSolution);
-  };
-
-  return (
-    <div>
-      <SearchBar placeholder="Rechercher dans les cas pratiques" onSearch={handleSearch} />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCas.map(cas => (
-          <div key={cas.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="p-6 flex flex-col items-center">
-              <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center mb-4">
-                <svg className="h-8 w-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-center">{cas.title}</h3>
-              <div className="flex gap-2 mb-2">
-                <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                  Durée recommandée: {cas.duration}
-                </span>
-                <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                  Domaine: {cas.domaine}
-                </span>
-              </div>
-              <div className="flex gap-2 flex-wrap justify-center mb-4">
-                {cas.tags.map(tag => (
-                  <span key={tag} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <button
-                onClick={() => openCas(cas)}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-              >
-                Voir le cas
-              </button>
+        <!-- Ressources entreprises -->
+        <div id="ressources" class="tab-content">
+            <h1 class="section-title">RESSOURCES</h1>
+            <p class="section-description">Cette section contient tous les documents essentiels au fonctionnement de la fondation Florence et à l'information des talents.</p>
+            
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Rechercher dans les ressources" id="ressource-search">
+                <span class="search-icon">🔍</span>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {selectedCas && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg overflow-hidden w-full max-w-4xl max-h-screen flex flex-col">
-            <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="font-bold">{selectedCas.title}</h3>
-              <button onClick={closeCas} className="text-gray-500 hover:text-gray-700">
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+            
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Tous</button>
+                <button class="filter-btn" data-filter="about">À propos de Florence</button>
+                <button class="filter-btn" data-filter="guides">Guides pratiques</button>
+                <button class="filter-btn" data-filter="partners">Entreprises partenaires</button>
             </div>
-            <div className="flex-grow overflow-y-auto p-6">
-              <div className="bg-gray-50 p-4 rounded-md mb-6">
-                <h4 className="font-medium mb-2">Énoncé</h4>
-                <p className="whitespace-pre-line">{selectedCas.enonce}</p>
-              </div>
-              
-              <div className="flex justify-center mb-6">
-                <button
-                  onClick={toggleSolution}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                >
-                  {showSolution ? 'Masquer la solution' : 'Afficher la solution indicative'}
-                </button>
-              </div>
-              
-              {showSolution && (
-                <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
-                  <h4 className="font-medium mb-2">Solution indicative</h4>
-                  <p className="whitespace-pre-line">{selectedCas.solution}</p>
+            
+            <div class="content-grid" id="ressources-grid">
+                <!-- Les ressources seront générées ici par JavaScript -->
+            </div>
+        </div>
+
+        <!-- Training (Flo NU) -->
+        <div id="training" class="tab-content">
+            <h1 class="section-title">TRAINING</h1>
+            <p class="section-description">La section training est dédiée à l'entraînement et à l'orientation des talents dans leurs domaines professionnels respectifs.</p>
+            
+            <div class="search-container">
+                <select class="filter-dropdown" style="width:100%" id="domain-select">
+                    <option value="">Sélectionner un domaine</option>
+                    <option value="droit">Droit</option>
+                    <option value="finance">Finance de Marché</option>
+                    <option value="consulting">Consulting</option>
+                </select>
+            </div>
+            
+            <div class="tertiary-nav">
+                <button class="tertiary-tab active" data-tab="revisions">Révisions</button>
+                <button class="tertiary-tab" data-tab="quiz">Quiz</button>
+                <button class="tertiary-tab" data-tab="cas">Cas pratiques</button>
+                <button class="tertiary-tab" data-tab="ressources-entretiens">Préparer son entretien</button>
+                <button class="tertiary-tab" data-tab="entretiens-blancs">Entretien blanc</button>
+            </div>
+            
+            <!-- Fiches de révision -->
+            <div id="revisions" class="tertiary-content active">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Rechercher dans les fiches de révision" id="revision-search">
+                    <span class="search-icon">🔍</span>
                 </div>
-              )}
+                
+                <div class="content-grid" id="revisions-grid">
+                    <!-- Les fiches de révision seront générées ici par JavaScript -->
+                </div>
             </div>
-          </div>
+            
+            <!-- Quiz d'évaluation -->
+            <div id="quiz" class="tertiary-content" style="display:none">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Rechercher dans les quiz" id="quiz-search">
+                    <span class="search-icon">🔍</span>
+                </div>
+                
+                <div id="quiz-list">
+                    <!-- Liste des quiz disponibles -->
+                    <div class="content-grid" id="quiz-grid">
+                        <!-- Les quiz seront générés ici par JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Contenu du quiz actif -->
+                <div id="active-quiz" style="display:none">
+                    <!-- Le quiz actif sera généré ici par JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Cas pratiques -->
+            <div id="cas" class="tertiary-content" style="display:none">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Rechercher dans les cas pratiques" id="cas-search">
+                    <span class="search-icon">🔍</span>
+                </div>
+                
+                <div class="content-grid" id="cas-grid">
+                    <!-- Les cas pratiques seront générés ici par JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Ressources sur les entretiens -->
+            <div id="ressources-entretiens" class="tertiary-content" style="display:none">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Rechercher dans les ressources sur les entretiens" id="entretien-search">
+                    <span class="search-icon">🔍</span>
+                </div>
+                
+                <div class="content-grid" id="entretien-grid">
+                    <!-- Les ressources sur les entretiens seront générées ici par JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Entretiens blancs -->
+            <div id="entretiens-blancs" class="tertiary-content" style="display:none">
+                <div class="search-container">
+                    <select class="filter-dropdown" style="width:49%; display:inline-block" id="domain-booking">
+                        <option value="">Sélectionner un domaine</option>
+                        <option value="droit">Droit</option>
+                        <option value="finance">Finance de Marché</option>
+                        <option value="consulting">Consulting</option>
+                    </select>
+                    <select class="filter-dropdown" style="width:49%; display:inline-block" id="subdomain-booking">
+                        <option value="">Sélectionner un sous-domaine</option>
+                        <!-- Options chargées dynamiquement en fonction du domaine sélectionné -->
+                    </select>
+                </div>
+                
+                <div class="booking-container" id="booking-grid">
+                    <!-- Les disponibilités pour les entretiens blancs seront générées ici par JavaScript -->
+                </div>
+            </div>
         </div>
-      )}
     </div>
-  );
-}
 
-// components/FloNU/RessourcesEntretiens.js
-import { useState, useEffect } from 'react';
-import SearchBar from '../SearchBar';
-
-export default function RessourcesEntretiens() {
-  const [ressources, setRessources] = useState([]);
-  const [filteredRessources, setFilteredRessources] = useState([]);
-  const [openRessource, setOpenRessource] = useState(null);
-  
-  useEffect(() => {
-    // Données factices de ressources sur les entretiens
-    const mockRessources = [
-      {
-        id: 1,
-        title: 'Guide d\'entretien - Cabinets d\'avocats d\'affaires',
-        domaine: 'droit',
-        tags: ['droit', 'entretien', 'cabinet'],
-        description: 'Guide de préparation aux entretiens dans les cabinets d\'avocats d\'affaires.',
-        url: 'https://fondationflorence.my.salesforce.com/sfc/p/07000000ZXDA/a/Jv000008dV0v/0TMCzmlen00i_Qo_I.QsMC.TuDGY3FjaoAWbNLnAVwY'
-      },
-      {
-        id: 2,
-        title: 'Guide d\'entretien - Banques d\'investissement',
-        domaine: 'finance',
-        tags: ['finance', 'entretien', 'banque'],
-        description: 'Guide de préparation aux entretiens dans les banques d\'investissement.',
-        url: 'https://engagement-guide-du-supr-rebzrbp.gamma.site/'
-      },
-      {
-        id: 3,
-        title: 'Guide d\'entretien - Cabinets de conseil en stratégie',
-        domaine: 'consulting',
-        tags: ['consulting', 'entretien', 'stratégie'],
-        description: 'Guide de préparation aux entretiens dans les cabinets de conseil en stratégie.',
-        url: 'https://florence-mentorship-cd8wzmm.gamma.site/copy-of-engagement-guide'
-      }
-    ];
-    
-    setRessources(mockRessources);
-    setFilteredRessources(mockRessources);
-  }, []);
-
-  const handleSearch = (query) => {
-    if (!query) {
-      setFilteredRessources(ressources);
-      return;
-    }
-    
-    const lowerQuery = query.toLowerCase();
-    const results = ressources.filter(ressource => {
-      if (ressource.title.toLowerCase().includes(lowerQuery)) return true;
-      if (ressource.domaine.toLowerCase().includes(lowerQuery)) return true;
-      if (ressource.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) return true;
-      if (ressource.description.toLowerCase().includes(lowerQuery)) return true;
-      
-      return false;
-    });
-    
-    setFilteredRessources(results);
-  };
-
-  const openRessourceViewer = (ressource) => {
-    setOpenRessource(ressource);
-  };
-
-  const closeRessourceViewer = () => {
-    setOpenRessource(null);
-  };
-
-  return (
-    <div>
-      <SearchBar placeholder="Rechercher dans les ressources sur les entretiens" onSearch={handleSearch} />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredRessources.map(ressource => (
-          <div key={ressource.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="p-6 flex flex-col items-center">
-              <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center mb-4">
-                <svg className="h-8 w-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-center">{ressource.title}</h3>
-              <div className="mb-2">
-                <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                  Domaine: {ressource.domaine}
-                </span>
-              </div>
-              <div className="flex gap-2 flex-wrap justify-center mb-4">
-                {ressource.tags.map(tag => (
-                  <span key={tag} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <p className="text-sm text-gray-600 mb-4 text-center">
-                {ressource.description}
-              </p>
-              <button
-                onClick={() => openRessourceViewer(ressource)}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-              >
-                Consulter
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {openRessource && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg overflow-hidden w-full max-w-4xl max-h-screen flex flex-col">
-            <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="font-bold">{openRessource.title}</h3>
-              <button onClick={closeRessourceViewer} className="text-gray-500 hover:text-gray-700">
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="flex-grow overflow-hidden">
-              <iframe 
-                src={openRessource.url} 
-                className="w-full h-full"
-                style={{ minHeight: '80vh' }}
-                title={openRessource.title}
-              />
-            </div>
-          </div>
+    <!-- Document Viewer -->
+    <div class="document-viewer">
+        <div class="viewer-header">
+            <div class="viewer-title">Document Title</div>
+            <div class="close-viewer">✕</div>
         </div>
-      )}
+        <iframe class="document-frame" src=""></iframe>
     </div>
-  );
-}
 
-// styles/globals.css
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-}
+    <script>
+        // Données des vidéos (simulées à partir des informations fournies)
+        const videosData = [
+            {
+                id: 1,
+                title: "Webinaire Fondation Florence — Fanny Letier",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/957592030/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "1h15min",
+                type: "webinaire",
+                description: "Fanny Letier partage son expérience et ses conseils sur l'entrepreneuriat et l'investissement.",
+                tags: ["entrepreneuriat", "finance", "conseil"]
+            },
+            {
+                id: 2,
+                title: "Webinaire Adrien Nussenbaum - Fondation Florence",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/953474850/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "55min",
+                type: "webinaire",
+                description: "Adrien Nussenbaum, co-fondateur de Mirakl, partage son parcours entrepreneurial.",
+                tags: ["entrepreneuriat", "tech", "international"]
+            },
+            {
+                id: 3,
+                title: "Webinaire Fondation Florence - François Paillier",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/942290993/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "45min",
+                type: "webinaire",
+                description: "François Paillier présente les défis et opportunités du secteur financier.",
+                tags: ["finance", "marché", "conseil"]
+            },
+            {
+                id: 4,
+                title: "Guerre en Ukraine 2022 - 2026",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/945813084/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "1h20min",
+                type: "webinaire",
+                description: "Analyse géopolitique du conflit en Ukraine et ses implications internationales.",
+                tags: ["international", "politique", "géopolitique"]
+            },
+            {
+                id: 5,
+                title: "Webinaire Fondation Florence - Marina Weiss",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/952018410/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "50min",
+                type: "webinaire",
+                description: "Marina Weiss présente les enjeux du secteur juridique et les opportunités de carrière.",
+                tags: ["droit", "carrière", "conseil"]
+            },
+            {
+                id: 6,
+                title: "Fondation Florence Webinaire _ Joel Palix",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/939092592/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "1h05min",
+                type: "webinaire",
+                description: "Joel Palix partage son expérience dans le secteur du luxe et de la beauté.",
+                tags: ["marketing", "luxe", "international"]
+            },
+            {
+                id: 7,
+                title: "Webinaire Fondation Florence - François Baroin",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/939105703/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "1h10min",
+                type: "webinaire",
+                description: "François Baroin aborde les questions politiques et économiques actuelles.",
+                tags: ["politique", "économie", "finance"]
+            },
+            {
+                id: 8,
+                title: "Webinaire Fondation Florence _ Laurence Boone",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/939106430/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "1h",
+                type: "webinaire",
+                description: "Laurence Boone analyse les tendances économiques mondiales et européennes.",
+                tags: ["économie", "international", "finance"]
+            },
+            {
+                id: 9,
+                title: "Fondation Florence _ Webinaire Métier _ TS KPMG",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/924510338/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "45min",
+                type: "webinaire",
+                description: "Présentation des métiers et opportunités de carrière chez KPMG.",
+                tags: ["audit", "conseil", "finance"]
+            },
+            {
+                id: 10,
+                title: "Webinaire Fondation Florence _ Mme Maya Atig",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/939092636/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "55min",
+                type: "webinaire",
+                description: "Maya Atig partage son expertise sur la régulation financière et bancaire.",
+                tags: ["finance", "banque", "régulation"]
+            },
+            {
+                id: 11,
+                title: "Webinaire Fondation Florence _ Mr Raoul Salomon",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/939106593/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "50min",
+                type: "webinaire",
+                description: "Raoul Salomon présente les marchés financiers et les carrières dans la banque d'investissement.",
+                tags: ["finance", "marchés", "banque"]
+            },
+            {
+                id: 12,
+                title: "Webinaire metier _ Mr David Salabi - CAMBON PARTNERS",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/924510517/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "1h",
+                type: "webinaire",
+                description: "David Salabi présente le métier de banquier d'affaires et les fusions-acquisitions.",
+                tags: ["finance", "m&a", "conseil"]
+            },
+            {
+                id: 13,
+                title: "Webinaire Psy Coaching - Paola Scemama - La Communication",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/939092290/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "40min",
+                type: "webinaire",
+                description: "Paola Scemama aborde les techniques de communication efficace en milieu professionnel.",
+                tags: ["coaching", "communication", "soft skills"]
+            },
+            {
+                id: 14,
+                title: "Webinaire RH - Albane Di Marco - Réussir son entretien",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/924510614/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "50min",
+                type: "webinaire",
+                description: "Conseils pratiques pour réussir ses entretiens d'embauche par Albane Di Marco.",
+                tags: ["rh", "entretien", "carrière"]
+            },
+            {
+                id: 15,
+                title: "Webinaire Psy_Coaching - Le syndrome de l'imposteur",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/939092916/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "45min",
+                type: "webinaire",
+                description: "Paola Scemama explique le syndrome de l'imposteur et comment le surmonter.",
+                tags: ["coaching", "psychologie", "développement personnel"]
+            },
+            {
+                id: 16,
+                title: "Webinaire Paola Scemama — Neuropsychologue et coach",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/961291521/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "55min",
+                type: "webinaire",
+                description: "Approche neuropsychologique du développement professionnel et personnel.",
+                tags: ["coaching", "psychologie", "neurosciences"]
+            },
+            {
+                id: 17,
+                title: "Webinaire Fondation Florence Cédric Carles - Entrepreneuriat & Transition Energétique",
+                embedUrl: "https://vimeo.com/showcase/11236068/video/992029780/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
+                duration: "1h10min",
+                type: "webinaire",
+                description: "Cédric Carles présente les opportunités d'entrepreneuriat dans la transition énergétique.",
+                tags: ["entrepreneuriat", "transition", "environnement"]
+            }
+        ];
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+        // Données des ressources entreprises (simulées)
+        const ressourcesData = [
+            {
+                id: 1,
+                title: "Présentation de la Fondation Florence",
+                type: "document",
+                category: "about",
+                fileUrl: "https://example.com/documents/presentation-florence.pdf",
+                description: "Document de présentation de la Fondation Florence et de sa mission.",
+                tags: ["présentation", "mission", "fondation"]
+            },
+            {
+                id: 2,
+                title: "Guide du mentorat",
+                type: "document",
+                category: "guides",
+                fileUrl: "https://example.com/documents/guide-mentorat.pdf",
+                description: "Guide pratique pour les mentors et mentorés de la Fondation Florence.",
+                tags: ["mentorat", "guide", "accompagnement"]
+            },
+            {
+                id: 3,
+                title: "Partenariat KPMG",
+                type: "document",
+                category: "partners",
+                fileUrl: "https://example.com/documents/partenariat-kpmg.pdf",
+                description: "Présentation du partenariat avec KPMG et des opportunités offertes.",
+                tags: ["kpmg", "partenariat", "audit"]
+            },
+            {
+                id: 4,
+                title: "Partenariat Rothschild & Co",
+                type: "document",
+                category: "partners",
+                fileUrl: "https://example.com/documents/partenariat-rothschild.pdf",
+                description: "Présentation du partenariat avec Rothschild & Co et des opportunités offertes.",
+                tags: ["rothschild", "partenariat", "finance"]
+            },
+            {
+                id: 5,
+                title: "Guide d'utilisation de la plateforme",
+                type: "document",
+                category: "guides",
+                fileUrl: "https://example.com/documents/guide-plateforme.pdf",
+                description: "Guide d'utilisation de la plateforme Florence NU.",
+                tags: ["plateforme", "guide", "utilisation"]
+            },
+            {
+                id: 6,
+                title: "Histoire et valeurs de la Fondation",
+                type: "document",
+                category: "about",
+                fileUrl: "https://example.com/documents/histoire-valeurs.pdf",
+                description: "Présentation de l'histoire et des valeurs de la Fondation Florence.",
+                tags: ["histoire", "valeurs", "fondation"]
+            },
+            {
+                id: 7,
+                title: "Partenariat Lazard Frères",
+                type: "document",
+                category: "partners",
+                fileUrl: "https://example.com/documents/partenariat-lazard.pdf",
+                description: "Présentation du partenariat avec Lazard Frères et des opportunités offertes.",
+                tags: ["lazard", "partenariat", "finance"]
+            },
+            {
+                id: 8,
+                title: "Guide de préparation aux stages",
+                type: "document",
+                category: "guides",
+                fileUrl: "https://example.com/documents/guide-stages.pdf",
+                description: "Guide pratique pour préparer et réussir ses stages professionnels.",
+                tags: ["stages", "guide", "préparation"]
+            }
+        ];
 
-* {
-  box-sizing: border-box;
-}
+        // Données des fiches de révision (simulées)
+        const revisionsData = [
+            {
+                id: 1,
+                title: "Les fondamentaux du droit des sociétés",
+                type: "document",
+                domain: "droit",
+                fileUrl: "https://example.com/documents/fondamentaux-droit-societes.pdf",
+                duration: "20min",
+                description: "Fiche synthétique sur les fondamentaux du droit des sociétés.",
+                tags: ["droit", "sociétés", "fondamentaux"]
+            },
+            {
+                id: 2,
+                title: "Introduction aux produits dérivés",
+                type: "document",
+                domain: "finance",
+                fileUrl: "https://example.com/documents/produits-derives.pdf",
+                duration: "25min",
+                description: "Fiche de révision sur les produits dérivés et leur fonctionnement.",
+                tags: ["finance", "dérivés", "marchés"]
+            },
+            {
+                id: 3,
+                title: "Méthodologie de résolution de cas en consulting",
+                type: "document",
+                domain: "consulting",
+                fileUrl: "https://example.com/documents/methodologie-consulting.pdf",
+                duration: "30min",
+                description: "Méthodologie et framework pour résoudre des cas de consulting.",
+                tags: ["consulting", "méthodologie", "cas"]
+            },
+            {
+                id: 4,
+                title: "Les contrats commerciaux internationaux",
+                type: "document",
+                domain: "droit",
+                fileUrl: "https://example.com/documents/contrats-commerciaux.pdf",
+                duration: "25min",
+                description: "Fiche sur les spécificités des contrats commerciaux internationaux.",
+                tags: ["droit", "contrats", "international"]
+            },
+            {
+                id: 5,
+                title: "Analyse financière d'entreprise",
+                type: "document",
+                domain: "finance",
+                fileUrl: "https://example.com/documents/analyse-financiere.pdf",
+                duration: "35min",
+                description: "Méthodes d'analyse financière d'entreprise et ratios clés.",
+                tags: ["finance", "analyse", "ratios"]
+            },
+            {
+                id: 6,
+                title: "Framework d'analyse stratégique",
+                type: "document",
+                domain: "consulting",
+                fileUrl: "https://example.com/documents/framework-strategie.pdf",
+                duration: "20min",
+                description: "Présentation des principaux frameworks d'analyse stratégique.",
+                tags: ["consulting", "stratégie", "framework"]
+            }
+        ];
 
-// pages/_app.js
-import '../styles/globals.css';
-import 'tailwindcss/tailwind.css';
+        // Données des cas pratiques (simulées)
+        const casData = [
+            {
+                id: 1,
+                title: "Cas pratique - Restructuration d'entreprise",
+                type: "document",
+                domain: "droit",
+                fileUrl: "https://example.com/documents/cas-restructuration.pdf",
+                description: "Cas pratique sur une restructuration d'entreprise en difficulté.",
+                tags: ["droit", "restructuration", "entreprise"]
+            },
+            {
+                id: 2,
+                title: "Cas pratique - Valorisation d'entreprise",
+                type: "document",
+                domain: "finance",
+                fileUrl: "https://example.com/documents/cas-valorisation.pdf",
+                description: "Cas pratique sur les méthodes de valorisation d'entreprise.",
+                tags: ["finance", "valorisation", "m&a"]
+            },
+            {
+                id: 3,
+                title: "Cas pratique - Stratégie d'expansion internationale",
+                type: "document",
+                domain: "consulting",
+                fileUrl: "https://example.com/documents/cas-expansion.pdf",
+                description: "Cas pratique sur la stratégie d'expansion internationale d'une entreprise.",
+                tags: ["consulting", "stratégie", "international"]
+            },
+            {
+                id: 4,
+                title: "Cas pratique - Contentieux commercial",
+                type: "document",
+                domain: "droit",
+                fileUrl: "https://example.com/documents/cas-contentieux.pdf",
+                description: "Cas pratique sur un contentieux commercial international.",
+                tags: ["droit", "contentieux", "commercial"]
+            },
+            {
+                id: 5,
+                title: "Cas pratique - Introduction en bourse",
+                type: "document",
+                domain: "finance",
+                fileUrl: "https://example.com/documents/cas-ipo.pdf",
+                description: "Cas pratique sur le processus d'introduction en bourse d'une entreprise.",
+                tags: ["finance", "ipo", "marchés"]
+            },
+            {
+                id: 6,
+                title: "Cas pratique - Transformation digitale",
+                type: "document",
+                domain: "consulting",
+                fileUrl: "https://example.com/documents/cas-transformation.pdf",
+                description: "Cas pratique sur la transformation digitale d'une entreprise traditionnelle.",
+                tags: ["consulting", "digital", "transformation"]
+            }
+        ];
 
-function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />;
-}
+        // Données des ressources entretiens (simulées)
+        const entretienData = [
+            {
+                id: 1,
+                title: "Guide d'entretien - Cabinets d'avocats d'affaires",
+                type: "document",
+                domain: "droit",
+                fileUrl: "https://example.com/documents/guide-entretien-avocats.pdf",
+                description: "Guide de préparation aux entretiens dans les cabinets d'avocats d'affaires.",
+                tags: ["droit", "entretien", "cabinet"]
+            },
+            {
+                id: 2,
+                title: "Guide d'entretien - Banques d'investissement",
+                type: "document",
+                domain: "finance",
+                fileUrl: "https://example.com/documents/guide-entretien-banques.pdf",
+                description: "Guide de préparation aux entretiens dans les banques d'investissement.",
+                tags: ["finance", "entretien", "banque"]
+            },
+            {
+                id: 3,
+                title: "Guide d'entretien - Cabinets de conseil en stratégie",
+                type: "document",
+                domain: "consulting",
+                fileUrl: "https://example.com/documents/guide-entretien-conseil.pdf",
+                description: "Guide de préparation aux entretiens dans les cabinets de conseil en stratégie.",
+                tags: ["consulting", "entretien", "stratégie"]
+            },
+            {
+                id: 4,
+                title: "Questions fréquentes - Entretiens juridiques",
+                type: "document",
+                domain: "droit",
+                fileUrl: "https://example.com/documents/questions-juridiques.pdf",
+                description: "Compilation des questions fréquemment posées lors des entretiens juridiques.",
+                tags: ["droit", "questions", "entretien"]
+            },
+            {
+                id: 5,
+                title: "Questions fréquentes - Entretiens finance",
+                type: "document",
+                domain: "finance",
+                fileUrl: "https://example.com/documents/questions-finance.pdf",
+                description: "Compilation des questions fréquemment posées lors des entretiens en finance.",
+                tags: ["finance", "questions", "entretien"]
+            },
+            {
+                id: 6,
+                title: "Questions fréquentes - Entretiens consulting",
+                type: "document",
+                domain: "consulting",
+                fileUrl: "https://example.com/documents/questions-consulting.pdf",
+                description: "Compilation des questions fréquemment posées lors des entretiens en consulting.",
+                tags: ["consulting", "questions", "entretien"]
+            }
+        ];
 
-export default MyApp;
+        // Données des quiz (extraites des exemples fournis)
+        const quizData = [
+            {
+                id: 1,
+                title: "Quiz 1 - M&A (Fusions & Acquisitions)",
+                domain: "finance",
+                description: "Quiz sur les fusions et acquisitions dans la section Finance d'Entreprise",
+                tags: ["finance", "m&a", "entreprise"],
+                questions: [
+                    {
+                        question: "Quel est l'objectif principal d'une opération de fusion-acquisition ?",
+                        options: [
+                            "Réduire le capital de l'entreprise acheteuse",
+                            "Créer de la valeur en combinant les forces des entreprises fusionnées",
+                            "Limiter l'exposition aux marchés financiers"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "L'objectif clé d'une fusion-acquisition est de générer de la valeur en réalisant des synergies (économies d'échelle, accès à de nouveaux marchés, optimisation des coûts, etc.). L'idée est que l'ensemble vaut plus que la somme des parties."
+                    },
+                    {
+                        question: "Quelle est la différence principale entre une fusion et une acquisition ?",
+                        options: [
+                            "Dans une fusion, les entreprises fusionnent en une seule entité, alors que dans une acquisition, l'une prend le contrôle de l'autre",
+                            "Une fusion implique forcément une transaction en cash, tandis qu'une acquisition utilise uniquement des actions",
+                            "Une fusion est toujours amicale, tandis qu'une acquisition est forcément hostile"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "Une fusion consiste à combiner deux entreprises pour en former une nouvelle, tandis qu'une acquisition implique que l'une absorbe l'autre, qui peut disparaître ou rester une filiale. Une acquisition peut être amicale ou hostile, contrairement à une idée reçue."
+                    },
+                    {
+                        question: "Quelle méthode est la plus couramment utilisée pour valoriser une entreprise dans une opération de M&A ?",
+                        options: [
+                            "La méthode des flux de trésorerie actualisés (DCF - Discounted Cash Flow)",
+                            "L'analyse des coûts fixes et variables",
+                            "Le calcul du coût du capital propre"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "La méthode DCF consiste à estimer la valeur future des flux de trésorerie générés par l'entreprise et à les actualiser pour obtenir une valeur présente. C'est une approche robuste, bien que souvent complétée par d'autres méthodes (comparables boursiers, transactions similaires, etc.)."
+                    },
+                    {
+                        question: "Qu'est-ce qu'une synergie dans une opération de fusion-acquisition ?",
+                        options: [
+                            "Une hausse automatique du cours de bourse après l'opération",
+                            "Les économies de coûts ou gains de revenus générés par la combinaison des entreprises",
+                            "Une prime versée aux actionnaires de l'entreprise cible"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "Les synergies sont les bénéfices attendus d'une fusion-acquisition, qu'ils soient financiers (réduction des coûts, économies d'échelle) ou stratégiques (accès à un nouveau marché, innovation commune, etc.). Elles justifient en grande partie le prix payé par l'acheteur."
+                    },
+                    {
+                        question: "Qu'est-ce qu'une offre publique d'achat (OPA) hostile ?",
+                        options: [
+                            "Une tentative de rachat contre la volonté du conseil d'administration de la cible",
+                            "Une fusion entre deux entreprises concurrentes",
+                            "Un rachat effectué sans emprunt bancaire"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "Une OPA hostile est une offre de rachat faite directement aux actionnaires d'une entreprise sans l'accord de son conseil d'administration. Cela peut entraîner des résistances et des stratégies de défense comme le poison pill ou le white knight."
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "Quiz 2 - M&A (Fusions & Acquisitions) avancé",
+                domain: "finance",
+                description: "Quiz avancé sur les fusions et acquisitions",
+                tags: ["finance", "m&a", "avancé"],
+                questions: [
+                    {
+                        question: "Quelle est la principale raison d'un rachat financé par effet de levier (LBO - Leveraged Buyout) ?",
+                        options: [
+                            "Maximiser la rentabilité pour les investisseurs en utilisant une forte part de dette",
+                            "Éviter de mobiliser trop de fonds propres pour un rachat",
+                            "Éviter toute dilution des actionnaires existants"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "Un LBO repose sur l'idée que l'endettement permet d'augmenter le rendement pour les investisseurs. L'acquéreur finance le rachat principalement par dette, remboursée avec les futurs flux de trésorerie de la société cible."
+                    },
+                    {
+                        question: "Lors d'une acquisition, que signifie le terme \"earn-out\" ?",
+                        options: [
+                            "Une clause qui permet à l'entreprise cible d'acheter des actions de l'acheteur",
+                            "Un paiement conditionnel basé sur la performance future de l'entreprise cible",
+                            "Une option pour les actionnaires minoritaires de revendre leurs parts à l'acquéreur"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "Un earn-out est un paiement différé et conditionnel que l'acquéreur verse au vendeur si la société atteint certains objectifs financiers ou stratégiques après la transaction. Cela permet de partager le risque entre acheteur et vendeur."
+                    },
+                    {
+                        question: "Quelle est la principale méthode de défense contre une OPA hostile ?",
+                        options: [
+                            "Le \"poison pill\", qui consiste à rendre l'acquisition plus coûteuse pour l'attaquant",
+                            "Un rachat massif des actions par le management",
+                            "La réduction volontaire du cours de l'action"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "Le poison pill est une tactique anti-OPA où la société cible émet de nouvelles actions ou modifie sa structure pour rendre l'acquisition prohibitive pour l'acheteur hostile. D'autres stratégies incluent le white knight (recherche d'un acheteur amical)."
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "Quiz 3 - Consulting & Stratégie",
+                domain: "consulting",
+                description: "Quiz sur les fondamentaux du conseil en stratégie",
+                tags: ["consulting", "stratégie", "fondamentaux"],
+                questions: [
+                    {
+                        question: "Quelle est la principale mission d'un consultant en stratégie ?",
+                        options: [
+                            "Aider les entreprises à améliorer leur compétitivité et leur rentabilité grâce à des recommandations stratégiques",
+                            "Gérer la comptabilité et le reporting financier des entreprises",
+                            "Accompagner les sociétés dans l'implémentation de logiciels ERP"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "Un consultant en stratégie analyse les défis d'une entreprise et propose des solutions pour améliorer sa position concurrentielle (croissance, digitalisation, réduction des coûts, diversification, etc.)."
+                    },
+                    {
+                        question: "Quelle méthodologie est la plus souvent utilisée en consulting pour structurer une analyse stratégique ?",
+                        options: [
+                            "L'approche MECE (Mutually Exclusive, Collectively Exhaustive)",
+                            "La théorie des jeux appliquée aux fusions-acquisitions",
+                            "L'analyse des écarts de bilan comptable"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "Le MECE est un principe fondamental du conseil en stratégie, où les catégories d'analyse doivent être mutuellement exclusives (aucun chevauchement) et collectivement exhaustives (pas d'oubli de cas possibles)."
+                    },
+                    {
+                        question: "Dans une étude de marché, quel est l'objectif principal d'une analyse SWOT ?",
+                        options: [
+                            "Identifier les forces, faiblesses, opportunités et menaces d'une entreprise",
+                            "Comparer la rentabilité de l'entreprise avec celle de ses concurrents",
+                            "Évaluer la satisfaction des employés par rapport à la gouvernance"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "L'analyse SWOT (Strengths, Weaknesses, Opportunities, Threats) est un outil essentiel en consulting pour comprendre la position stratégique d'une entreprise face à son marché et ses concurrents."
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "Quiz 4 - Consulting & Stratégie avancé",
+                domain: "consulting",
+                description: "Quiz avancé sur le conseil en stratégie et les entretiens",
+                tags: ["consulting", "entretien", "cas"],
+                questions: [
+                    {
+                        question: "Quelle est la structure typique d'un entretien de conseil en stratégie ?",
+                        options: [
+                            "Présentation du candidat, étude de cas, questions-réponses avec le recruteur",
+                            "Test psychométrique, rédaction d'un mémoire, présentation orale",
+                            "Étude approfondie du CV et mise en situation opérationnelle"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "Les entretiens en conseil en stratégie suivent généralement un format standard : 1. Présentation rapide du candidat, 2. Étude de cas où il doit résoudre un problème stratégique, 3. Q&A avec le recruteur sur ses motivations et son parcours."
+                    },
+                    {
+                        question: "Quelle technique est souvent utilisée pour résoudre une étude de cas en consulting ?",
+                        options: [
+                            "La segmentation du problème en plusieurs hypothèses testables",
+                            "La recherche des meilleures réponses sur Google",
+                            "L'improvisation en fonction de l'intuition du consultant"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "Les consultants apprennent à segmenter un problème complexe en plusieurs éléments analytiques et tester des hypothèses logiques avant de formuler une recommandation. Cette méthode est essentielle dans les études de cas."
+                    },
+                    {
+                        question: "Quelle est la différence entre un consultant en stratégie et un consultant en management ?",
+                        options: [
+                            "Le consultant en stratégie se concentre sur les décisions long terme, tandis que le consultant en management travaille sur l'optimisation des opérations au quotidien",
+                            "Il n'y a aucune différence entre les deux",
+                            "Le consultant en management travaille uniquement avec des PME, tandis que le consultant en stratégie ne conseille que des multinationales"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "Le consulting en stratégie concerne les grandes décisions stratégiques (croissance, acquisition, entrée sur un marché), tandis que le consulting en management traite l'amélioration des processus opérationnels et organisationnels au sein de l'entreprise."
+                    }
+                ]
+            }
+        ];
+
+        // Données des entretiens blancs (simulées)
+        const bookingData = [
+            {
+                id: 1,
+                title: "Entretien Droit des affaires",
+                domain: "droit",
+                subdomain: "affaires",
+                mentor: "Me Jean Dupont",
+                date: "15/03/2025",
+                slots: ["10:00", "14:00", "16:30"]
+            },
+            {
+                id: 2,
+                title: "Entretien Droit social",
+                domain: "droit",
+                subdomain: "social",
+                mentor: "Me Sophie Martin",
+                date: "18/03/2025",
+                slots: ["11:00", "15:30"]
+            },
+            {
+                id: 3,
+                title: "Entretien Finance de marché - Trading",
+                domain: "finance",
+                subdomain: "trading",
+                mentor: "Thomas Leclerc",
+                date: "16/03/2025",
+                slots: ["09:30", "13:00", "17:00"]
+            },
+            {
+                id: 4,
+                title: "Entretien Finance de marché - M&A",
+                domain: "finance",
+                subdomain: "m&a",
+                mentor: "Laura Blanc",
+                date: "19/03/2025",
+                slots: ["10:30", "14:30"]
+            },
+            {
+                id: 5,
+                title: "Entretien Consulting - Stratégie",
+                domain: "consulting",
+                subdomain: "strategie",
+                mentor: "Paul Dubois",
+                date: "17/03/2025",
+                slots: ["09:00", "13:30", "16:00"]
+            },
+            {
+                id: 6,
+                title: "Entretien Consulting - Opérations",
+                domain: "consulting",
+                subdomain: "operations",
+                mentor: "Marie Petit",
+                date: "20/03/2025",
+                slots: ["11:30", "15:00"]
+            }
+        ];
+
+        // Dictionnaire des sous-domaines par domaine
+        const subdomains = {
+            "droit": [
+                { value: "affaires", label: "Droit des affaires" },
+                { value: "social", label: "Droit social" },
+                { value: "fiscal", label: "Droit fiscal" },
+                { value: "propriete", label: "Propriété intellectuelle" }
+            ],
+            "finance": [
+                { value: "trading", label: "Trading" },
+                { value: "m&a", label: "Fusions & Acquisitions" },
+                { value: "investment", label: "Investment Banking" },
+                { value: "asset", label: "Asset Management" }
+            ],
+            "consulting": [
+                { value: "strategie", label: "Stratégie" },
+                { value: "operations", label: "Opérations" },
+                { value: "digital", label: "Transformation digitale" },
+                { value: "finance", label: "Finance" }
+            ]
+        };
+
+        // Fonction pour créer un élément de vidéo
+        function createVideoElement(video) {
+            const tagsHtml = video.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+            
+            return `
+            <div class="content-card" data-type="${video.type}" data-tags="${video.tags.join(',')}">
+                <div class="card-media">
+                    <iframe src="${video.embedUrl}" scrolling="no" allowfullscreen></iframe>
+                </div>
+                <div class="card-info">
+                    <h3 class="card-title">${video.title}</h3>
+                    <div class="card-meta">
+                        <span>Durée: ${video.duration}</span>
+                        <span>Type: ${video.type}</span>
+                    </div>
+                    <p>${video.description}</p>
+                    <div class="card-tags">
+                        ${tagsHtml}
+                    </div>
+                    <div class="card-actions">
+                        <div class="action-btn">❤️</div>
+                        <div class="action-btn">⏱️</div>
+                        <div class="action-btn">📋</div>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        // Fonction pour créer un élément de document
+        function createDocumentElement(doc) {
+            const tagsHtml = doc.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+            const durationHtml = doc.duration ? `<span>Durée de lecture: ${doc.duration}</span>` : '';
+            const domainHtml = doc.domain ? `<span>Domaine: ${doc.domain}</span>` : '';
+            
+            return `
+            <div class="content-card" data-type="${doc.type}" data-category="${doc.category || ''}" data-domain="${doc.domain || ''}" data-tags="${doc.tags.join(',')}">
+                <div class="card-media document-preview" data-url="${doc.fileUrl}">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0RjRGNEYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTQgMkg2YTIgMiAwIDAgMC0yIDJ2MTZhMiAyIDAgMCAwIDIgMmgxMmEyIDIgMCAwIDAgMi0yVjh6Ij48L3BhdGg+PHBvbHlsaW5lIHBvaW50cz0iMTQgMiAxNCA4IDIwIDgiPjwvcG9seWxpbmU+PC9zdmc+" alt="Document">
+                </div>
+                <div class="card-info">
+                    <h3 class="card-title">${doc.title}</h3>
+                    <div class="card-meta">
+                        ${durationHtml}
+                        ${domainHtml}
+                    </div>
+                    <p>${doc.description}</p>
+                    <div class="card-tags">
+                        ${tagsHtml}
+                    </div>
+                    <div class="card-actions">
+                        <div class="action-btn">❤️</div>
+                        <div class="action-btn">⏱️</div>
+                        <div class="action-btn">📋</div>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        // Fonction pour créer un élément de quiz
+        function createQuizElement(quiz) {
+            const tagsHtml = quiz.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+            
+            return `
+            <div class="content-card" data-domain="${quiz.domain}" data-tags="${quiz.tags.join(',')}">
+                <div class="card-media document-preview" data-quiz-id="${quiz.id}">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0RjRGNEYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCI+PC9jaXJjbGU+PHBhdGggZD0iTTkuMDkgOSBhMyAzIDAgMCAxIDUuODMgMWMwIDItMyAzLTMgM20wIDR2LjAxIj48L3BhdGg+PC9zdmc+" alt="Quiz">
+                </div>
+                <div class="card-info">
+                    <h3 class="card-title">${quiz.title}</h3>
+                    <div class="card-meta">
+                        <span>Domaine: ${quiz.domain}</span>
+                        <span>Questions: ${quiz.questions.length}</span>
+                    </div>
+                    <p>${quiz.description}</p>
+                    <div class="card-tags">
+                        ${tagsHtml}
+                    </div>
+                    <div class="card-actions">
+                        <div class="action-btn">❤️</div>
+                        <div class="action-btn">⏱️</div>
+                        <div class="action-btn">📋</div>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        // Fonction pour créer un élément de réservation d'entretien
+        function createBookingElement(booking) {
+            const slotsHtml = booking.slots.map(slot => `
+                <a href="#" class="booking-btn" data-booking-id="${booking.id}" data-slot="${slot}">Réserver à ${slot}</a>
+            `).join('');
+            
+            return `
+            <div class="booking-card" data-domain="${booking.domain}" data-subdomain="${booking.subdomain}">
+                <h3 class="booking-title">${booking.title}</h3>
+                <div class="booking-meta">
+                    <p>Mentor: ${booking.mentor}</p>
+                    <p>Date: ${booking.date}</p>
+                </div>
+                <p>Choisissez un créneau horaire:</p>
+                ${slotsHtml}
+            </div>
+            `;
+        }
+
+        // Fonction pour générer un quiz actif
+        function generateActiveQuiz(quizId) {
+            const quiz = quizData.find(q => q.id === quizId);
+            if (!quiz) return '';
+            
+            let questionsHtml = '';
+            quiz.questions.forEach((q, index) => {
+                let optionsHtml = '';
+                q.options.forEach((option, optIndex) => {
+                    optionsHtml += `
+                    <div class="answer-option" data-index="${optIndex}">
+                        <input type="radio" name="question-${index}" id="q${index}-opt${optIndex}">
+                        <label for="q${index}-opt${optIndex}">${option}</label>
+                    </div>
+                    `;
+                });
+                
+                questionsHtml += `
+                <div class="quiz-question" data-correct="${q.correctAnswer}">
+                    <p class="question-text"><strong>Question ${index + 1}:</strong> ${q.question}</p>
+                    <div class="answer-options">
+                        ${optionsHtml}
+                    </div>
+                    <div class="explanation" style="display:none;">
+                        <p><strong>Explication:</strong> ${q.explanation}</p>
+                    </div>
+                </div>
+                `;
+            });
+            
+            return `
+            <div class="quiz-container">
+                <h2 class="quiz-title">${quiz.title}</h2>
+                <div class="quiz-questions">
+                    ${questionsHtml}
+                </div>
+                <div class="quiz-actions">
+                    <button class="quiz-btn" id="back-to-quizzes">Retour aux quiz</button>
+                    <button class="quiz-btn" id="validate-quiz">Valider les réponses</button>
+                </div>
+            </div>
+            `;
+        }
+
+        // Fonction pour initialiser la vidéothèque
+        function initVideotheque() {
+            const videosGrid = document.getElementById('videos-grid');
+            videosGrid.innerHTML = '';
+            
+            videosData.forEach(video => {
+                videosGrid.innerHTML += createVideoElement(video);
+            });
+        }
+
+        // Fonction pour initialiser les ressources
+        function initRessources() {
+            const ressourcesGrid = document.getElementById('ressources-grid');
+            ressourcesGrid.innerHTML = '';
+            
+            ressourcesData.forEach(doc => {
+                ressourcesGrid.innerHTML += createDocumentElement(doc);
+            });
+        }
+
+        // Fonction pour initialiser les fiches de révision
+        function initRevisions() {
+            const revisionsGrid = document.getElementById('revisions-grid');
+            revisionsGrid.innerHTML = '';
+            
+            revisionsData.forEach(doc => {
+                revisionsGrid.innerHTML += createDocumentElement(doc);
+            });
+        }
+
+        // Fonction pour initialiser les cas pratiques
+        function initCas() {
+            const casGrid = document.getElementById('cas-grid');
+            casGrid.innerHTML = '';
+            
+            casData.forEach(doc => {
+                casGrid.innerHTML += createDocumentElement(doc);
+            });
+        }
+
+        // Fonction pour initialiser les ressources sur les entretiens
+        function initEntretienRessources() {
+            const entretienGrid = document.getElementById('entretien-grid');
+            entretienGrid.innerHTML = '';
+            
+            entretienData.forEach(doc => {
+                entretienGrid.innerHTML += createDocumentElement(doc);
+            });
+        }
+
+        // Fonction pour initialiser les quiz
+        function initQuiz() {
+            const quizGrid = document.getElementById('quiz-grid');
+            quizGrid.innerHTML = '';
+            
+            quizData.forEach(quiz => {
+                quizGrid.innerHTML += createQuizElement(quiz);
+            });
+        }
+
+        // Fonction pour initialiser les entretiens blancs
+        function initEntretiensBlancs() {
+            const bookingGrid = document.getElementById('booking-grid');
+            bookingGrid.innerHTML = '';
+            
+            bookingData.forEach(booking => {
+                bookingGrid.innerHTML += createBookingElement(booking);
+            });
+        }
+
+        // Fonction pour mettre à jour les sous-domaines en fonction du domaine sélectionné
+        function updateSubdomains() {
+            const domainSelect = document.getElementById('domain-booking');
+            const subdomainSelect = document.getElementById('subdomain-booking');
+            const selectedDomain = domainSelect.value;
+            
+            subdomainSelect.innerHTML = '<option value="">Sélectionner un sous-domaine</option>';
+            
+            if (selectedDomain && subdomains[selectedDomain]) {
+                subdomains[selectedDomain].forEach(sub => {
+                    subdomainSelect.innerHTML += `<option value="${sub.value}">${sub.label}</option>`;
+                });
+            }
+        }
+
+        // Fonction pour filtrer les vidéos
+        function filterVideos() {
+            const searchTerm = document.getElementById('video-search').value.toLowerCase();
+            const typeFilter = document.getElementById('type-filter').value;
+            const durationFilter = document.getElementById('duration-filter').value;
+            const tagFilter = document.getElementById('tag-filter').value;
+            
+            const videos = document.querySelectorAll('#videos-grid .content-card');
+            
+            videos.forEach(video => {
+                const title = video.querySelector('.card-title').textContent.toLowerCase();
+                const description = video.querySelector('p').textContent.toLowerCase();
+                const videoType = video.getAttribute('data-type');
+                const tags = video.getAttribute('data-tags').split(',');
+                
+                // Vérifier la correspondance avec la recherche
+                const matchesSearch = !searchTerm || 
+                                     title.includes(searchTerm) || 
+                                     description.includes(searchTerm) || 
+                                     tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                
+                // Vérifier la correspondance avec le type
+                const matchesType = !typeFilter || videoType === typeFilter;
+                
+                // Vérifier la correspondance avec le tag
+                const matchesTag = !tagFilter || tags.includes(tagFilter);
+                
+                // Vérifier la correspondance avec la durée (simulation)
+                const matchesDuration = !durationFilter || true; // À compléter avec la logique de durée
+                
+                // Afficher ou masquer la vidéo
+                if (matchesSearch && matchesType && matchesTag && matchesDuration) {
+                    video.style.display = 'block';
+                } else {
+                    video.style.display = 'none';
+                }
+            });
+        }
+
+        // Fonction pour filtrer les ressources
+        function filterRessources() {
+            const searchTerm = document.getElementById('ressource-search').value.toLowerCase();
+            const categoryFilter = document.querySelector('#ressources .filters .filter-btn.active').getAttribute('data-filter');
+            
+            const resources = document.querySelectorAll('#ressources-grid .content-card');
+            
+            resources.forEach(resource => {
+                const title = resource.querySelector('.card-title').textContent.toLowerCase();
+                const description = resource.querySelector('p').textContent.toLowerCase();
+                const category = resource.getAttribute('data-category');
+                const tags = resource.getAttribute('data-tags').split(',');
+                
+                // Vérifier la correspondance avec la recherche
+                const matchesSearch = !searchTerm || 
+                                     title.includes(searchTerm) || 
+                                     description.includes(searchTerm) || 
+                                     tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                
+                // Vérifier la correspondance avec la catégorie
+                const matchesCategory = categoryFilter === 'all' || category === categoryFilter;
+                
+                // Afficher ou masquer la ressource
+                if (matchesSearch && matchesCategory) {
+                    resource.style.display = 'block';
+                } else {
+                    resource.style.display = 'none';
+                }
+            });
+        }
+
+        // Fonction pour filtrer les fiches de révision
+        function filterRevisions() {
+            const searchTerm = document.getElementById('revision-search').value.toLowerCase();
+            const domainFilter = document.getElementById('domain-select').value;
+            
+            const revisions = document.querySelectorAll('#revisions-grid .content-card');
+            
+            revisions.forEach(revision => {
+                const title = revision.querySelector('.card-title').textContent.toLowerCase();
+                const description = revision.querySelector('p').textContent.toLowerCase();
+                const domain = revision.getAttribute('data-domain');
+                const tags = revision.getAttribute('data-tags').split(',');
+                
+                // Vérifier la correspondance avec la recherche
+                const matchesSearch = !searchTerm || 
+                                     title.includes(searchTerm) || 
+                                     description.includes(searchTerm) || 
+                                     tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                
+                // Vérifier la correspondance avec le domaine
+                const matchesDomain = !domainFilter || domain === domainFilter;
+                
+                // Afficher ou masquer la fiche
+                if (matchesSearch && matchesDomain) {
+                    revision.style.display = 'block';
+                } else {
+                    revision.style.display = 'none';
+                }
+            });
+        }
+
+        // Fonction pour filtrer les quiz
+        function filterQuizzes() {
+            const searchTerm = document.getElementById('quiz-search').value.toLowerCase();
+            const domainFilter = document.getElementById('domain-select').value;
+            
+            const quizzes = document.querySelectorAll('#quiz-grid .content-card');
+            
+            quizzes.forEach(quiz => {
+                const title = quiz.querySelector('.card-title').textContent.toLowerCase();
+                const description = quiz.querySelector('p').textContent.toLowerCase();
+                const domain = quiz.getAttribute('data-domain');
+                const tags = quiz.getAttribute('data-tags').split(',');
+                
+                // Vérifier la correspondance avec la recherche
+                const matchesSearch = !searchTerm || 
+                                     title.includes(searchTerm) || 
+                                     description.includes(searchTerm) || 
+                                     tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                
+                // Vérifier la correspondance avec le domaine
+                const matchesDomain = !domainFilter || domain === domainFilter;
+                
+                // Afficher ou masquer le quiz
+                if (matchesSearch && matchesDomain) {
+                    quiz.style.display = 'block';
+                } else {
+                    quiz.style.display = 'none';
+                }
+            });
+        }
+
+        // Fonction pour filtrer les cas pratiques
+        function filterCas() {
+            const searchTerm = document.getElementById('cas-search').value.toLowerCase();
+            const domainFilter = document.getElementById('domain-select').value;
+            
+            const casPratiques = document.querySelectorAll('#cas-grid .content-card');
+            
+            casPratiques.forEach(cas => {
+                const title = cas.querySelector('.card-title').textContent.toLowerCase();
+                const description = cas.querySelector('p').textContent.toLowerCase();
+                const domain = cas.getAttribute('data-domain');
+                const tags = cas.getAttribute('data-tags').split(',');
+                
+                // Vérifier la correspondance avec la recherche
+                const matchesSearch = !searchTerm || 
+                                     title.includes(searchTerm) || 
+                                     description.includes(searchTerm) || 
+                                     tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                
+                // Vérifier la correspondance avec le domaine
+                const matchesDomain = !domainFilter || domain === domainFilter;
+                
+                // Afficher ou masquer le cas
+                if (matchesSearch && matchesDomain) {
+                    cas.style.display = 'block';
+                } else {
+                    cas.style.display = 'none';
+                }
+            });
+        }
+
+        // Fonction pour filtrer les ressources d'entretien
+        function filterEntretienRessources() {
+            const searchTerm = document.getElementById('entretien-search').value.toLowerCase();
+            const domainFilter = document.getElementById('domain-select').value;
+            
+            const ressources = document.querySelectorAll('#entretien-grid .content-card');
+            
+            ressources.forEach(ressource => {
+                const title = ressource.querySelector('.card-title').textContent.toLowerCase();
+                const description = ressource.querySelector('p').textContent.toLowerCase();
+                const domain = ressource.getAttribute('data-domain');
+                const tags = ressource.getAttribute('data-tags').split(',');
+                
+                // Vérifier la correspondance avec la recherche
+                const matchesSearch = !searchTerm || 
+                                     title.includes(searchTerm) || 
+                                     description.includes(searchTerm) || 
+                                     tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                
+                // Vérifier la correspondance avec le domaine
+                const matchesDomain = !domainFilter || domain === domainFilter;
+                
+                // Afficher ou masquer la ressource
+                if (matchesSearch && matchesDomain) {
+                    ressource.style.display = 'block';
+                } else {
+                    ressource.style.display = 'none';
+                }
+            });
+        }
+
+        // Fonction pour filtrer les entretiens blancs
+        function filterEntretiensBlancs() {
+            const domainFilter = document.getElementById('domain-booking').value;
+            const subdomainFilter = document.getElementById('subdomain-booking').value;
+            
+            const bookings = document.querySelectorAll('#booking-grid .booking-card');
+            
+            bookings.forEach(booking => {
+                const domain = booking.getAttribute('data-domain');
+                const subdomain = booking.getAttribute('data-subdomain');
+                
+                // Vérifier la correspondance avec le domaine
+                const matchesDomain = !domainFilter || domain === domainFilter;
+                
+                // Vérifier la correspondance avec le sous-domaine
+                const matchesSubdomain = !subdomainFilter || subdomain === subdomainFilter;
+                
+                // Afficher ou masquer l'entretien
+                if (matchesDomain && matchesSubdomain) {
+                    booking.style.display = 'block';
+                } else {
+                    booking.style.display = 'none';
+                }
+            });
+        }
+
+        // Fonction pour initialiser tous les éléments
+        function initAll() {
+            initVideotheque();
+            initRessources();
+            initRevisions();
+            initCas();
+            initEntretienRessources();
+            initQuiz();
+            initEntretiensBlancs();
+            
+            // Attacher les événements
+            attachEvents();
+        }
+
+        // Fonction pour attacher les événements
+        function attachEvents() {
+            // Navigation principale
+            document.querySelectorAll('.main-tab').forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Mettre à jour les onglets actifs
+                    document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Afficher le contenu correspondant
+                    const tabId = this.getAttribute('data-tab');
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Navigation tertiaire (Flo NU)
+            document.querySelectorAll('.tertiary-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Mettre à jour les onglets actifs
+                    document.querySelectorAll('.tertiary-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Afficher le contenu correspondant
+                    const tabId = this.getAttribute('data-tab');
+                    document.querySelectorAll('.tertiary-content').forEach(content => content.style.display = 'none');
+                    document.getElementById(tabId).style.display = 'block';
+                });
+            });
+            
+            // Filtres vidéothèque
+            document.getElementById('video-search').addEventListener('input', filterVideos);
+            document.getElementById('type-filter').addEventListener('change', filterVideos);
+            document.getElementById('duration-filter').addEventListener('change', filterVideos);
+            document.getElementById('tag-filter').addEventListener('change', filterVideos);
+            
+            // Filtres ressources
+            document.getElementById('ressource-search').addEventListener('input', filterRessources);
+            document.querySelectorAll('#ressources .filters .filter-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelectorAll('#ressources .filters .filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterRessources();
+                });
+            });
+            
+            // Filtres fiches de révision
+            document.getElementById('revision-search').addEventListener('input', filterRevisions);
+            document.getElementById('domain-select').addEventListener('change', function() {
+                filterRevisions();
+                filterQuizzes();
+                filterCas();
+                filterEntretienRessources();
+            });
+            
+            // Filtres quiz
+            document.getElementById('quiz-search').addEventListener('input', filterQuizzes);
+            
+            // Filtres cas pratiques
+            document.getElementById('cas-search').addEventListener('input', filterCas);
+            
+            // Filtres ressources entretiens
+            document.getElementById('entretien-search').addEventListener('input', filterEntretienRessources);
+            
+            // Filtres entretiens blancs
+            document.getElementById('domain-booking').addEventListener('change', function() {
+                updateSubdomains();
+                filterEntretiensBlancs();
+            });
+            document.getElementById('subdomain-booking').addEventListener('change', filterEntretiensBlancs);
+            
+            // Prévisualisation des documents
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.document-preview')) {
+                    const preview = e.target.closest('.document-preview');
+                    
+                    // Vérifier s'il s'agit d'un quiz
+                    if (preview.hasAttribute('data-quiz-id')) {
+                        const quizId = parseInt(preview.getAttribute('data-quiz-id'));
+                        document.getElementById('quiz-list').style.display = 'none';
+                        document.getElementById('active-quiz').style.display = 'block';
+                        document.getElementById('active-quiz').innerHTML = generateActiveQuiz(quizId);
+                        
+                        // Attacher les événements du quiz
+                        document.getElementById('back-to-quizzes').addEventListener('click', function() {
+                            document.getElementById('quiz-list').style.display = 'block';
+                            document.getElementById('active-quiz').style.display = 'none';
+                        });
+                        
+                        document.getElementById('validate-quiz').addEventListener('click', function() {
+                            validateQuiz();
+                        });
+                        
+                        // Attacher les événements de sélection des réponses
+                        document.querySelectorAll('.answer-option').forEach(option => {
+                            option.addEventListener('click', function() {
+                                const question = this.closest('.quiz-question');
+                                question.querySelectorAll('.answer-option').forEach(opt => opt.classList.remove('selected'));
+                                this.classList.add('selected');
+                            });
+                        });
+                    } else {
+                        // Ouvrir la visionneuse de document
+                        const fileUrl = preview.getAttribute('data-url');
+                        const title = preview.closest('.content-card').querySelector('.card-title').textContent;
+                        
+                        document.querySelector('.document-viewer .viewer-title').textContent = title;
+                        document.querySelector('.document-frame').src = fileUrl;
+                        document.querySelector('.document-viewer').classList.add('active');
+                    }
+                }
+            });
+            
+            // Fermer la visionneuse de document
+            document.querySelector('.close-viewer').addEventListener('click', function() {
+                document.querySelector('.document-viewer').classList.remove('active');
+                document.querySelector('.document-frame').src = '';
+            });
+            
+            // Validation du quiz
+            document.addEventListener('click', function(e) {
+                if (e.target.id === 'validate-quiz') {
+                    validateQuiz();
+                }
+            });
+            
+            // Réservation d'entretien
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('booking-btn')) {
+                    e.preventDefault();
+                    const bookingId = e.target.getAttribute('data-booking-id');
+                    const slot = e.target.getAttribute('data-slot');
+                    alert(`Entretien réservé avec succès pour le créneau de ${slot}. Un email de confirmation vous sera envoyé.`);
+                    e.target.textContent = 'Réservé';
+                    e.target.classList.add('disabled');
+                    e.target.disabled = true;
+                }
+            });
+        }
+        
+        // Fonction pour valider un quiz
+        function validateQuiz() {
+            const questions = document.querySelectorAll('.quiz-question');
+            let score = 0;
+            
+            questions.forEach(question => {
+                const correctIndex = parseInt(question.getAttribute('data-correct'));
+                const selectedOption = question.querySelector('.answer-option.selected');
+                
+                // Réinitialiser les classes
+                question.querySelectorAll('.answer-option').forEach(option => {
+                    option.classList.remove('correct', 'incorrect');
+                });
+                
+                // Marquer la bonne réponse
+                question.querySelectorAll('.answer-option')[correctIndex].classList.add('correct');
+                
+                // Vérifier si une réponse a été sélectionnée et si elle est correcte
+                if (selectedOption) {
+                    const selectedIndex = parseInt(selectedOption.getAttribute('data-index'));
+                    
+                    if (selectedIndex === correctIndex) {
+                        score++;
+                    } else {
+                        selectedOption.classList.add('incorrect');
+                    }
+                }
+                
+                // Afficher l'explication
+                question.querySelector('.explanation').style.display = 'block';
+            });
+            
+            // Calculer le pourcentage
+            const percentage = Math.round((score / questions.length) * 100);
+            
+            // Ajouter le résultat
+            let feedback = '';
+            if (percentage >= 80) {
+                feedback = 'Excellent ! Vous maîtrisez bien le sujet.';
+            } else if (percentage >= 60) {
+                feedback = 'Bon travail ! Quelques révisions supplémentaires seraient bénéfiques.';
+            } else {
+                feedback = 'Des révisions sont nécessaires pour mieux comprendre ce sujet.';
+            }
+            
+            const resultHtml = `
+            <div class="quiz-result" style="margin-top: 2rem; padding: 1rem; background-color: #F5F5F5; border-radius: 4px;">
+                <h3>Résultat: ${score}/${questions.length} (${percentage}%)</h3>
+                <p>${feedback}</p>
+            </div>
+            `;
+            
+            // Ajouter le résultat au quiz
+            if (!document.querySelector('.quiz-result')) {
+                document.querySelector('.quiz-questions').insertAdjacentHTML('afterend', resultHtml);
+            } else {
+                document.querySelector('.quiz-result').outerHTML = resultHtml;
+            }
+            
+            // Désactiver le bouton de validation
+            document.getElementById('validate-quiz').disabled = true;
+        }
+        
+        // Initialiser tout au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            initAll();
+        });
+    </script>
+</body>
+</html>
