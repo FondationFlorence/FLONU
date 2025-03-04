@@ -863,32 +863,29 @@
             {
                 id: 7,
                 title: "Partenariat Lazard Frères",
-                type: "document",
-                category: "partners",
-                fileUrl: "https://example.com/documents/partenariat-lazard.pdf",
-                description: "Présentation du partenariat avec Lazard Frères et des opportunités offertes.",
-                tags: ["lazard", "partenariat", "finance"]
-            },
-            {
-                id: 8,
-                title: "Guide de préparation aux stages",
-                type: "document",
-                category: "guides",
-                fileUrl: "https://example.com/documents/guide-stages.pdf",
-                description: "Guide pratique pour préparer et réussir ses stages professionnels.",
-                tags: ["stages", "guide", "préparation"]
-            }
-        ];
-
-        // Données des fiches de révision (simulées)
-        const revisionsData = [
-            {
-                id: 1,
-                title: "Les fondamentaux du droit des sociétés",
-                type: "document",
-                domain: "droit",
-                fileUrl: "https://example.com/documents/fondamentaux-droit-societes.pdf",
-                duration: "20min",
+                // Fonction pour créer un élément de vidéo
+function createVideoElement(video) {
+    const tagsHtml = video.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+    
+    return `
+    <div class="content-card" data-type="${video.type}" data-tags="${video.tags.join(',')}">
+        <div class="card-media">
+            <iframe src="${video.embedUrl}" scrolling="no" allowfullscreen></iframe>
+        </div>
+        <div class="card-info">
+            <h3 class="card-title">${video.title}</h3>
+            <div class="card-meta">
+                <span>Durée: ${video.duration}</span>
+                <span>Type: ${video.type}</span>
+            </div>
+            <p>${video.description}</p>
+            <div class="card-tags">
+                ${tagsHtml}
+            </div>
+        </div>
+    </div>
+    `;
+}
                 description: "Fiche synthétique sur les fondamentaux du droit des sociétés.",
                 tags: ["droit", "sociétés", "fondamentaux"]
             },
