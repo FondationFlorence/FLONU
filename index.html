@@ -620,739 +620,114 @@
         <iframe class="document-frame" src=""></iframe>
     </div>
 
+    <!-- Intégration de PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js" integrity="sha512-ml/QKfG3+Yes6TwOzQb7aCNtJF4PUyha6R3w8pSTo/VJSywl7ZreYvvtUso7fKevpsI+pYVVwnu82YO0q3V6eg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <script>
+        // Fonction pour initialiser la liseuse PDF
+        function initPDFViewer(pdfUrl, containerId) {
+            const container = document.getElementById(containerId);
+
+            // Charger le PDF
+            pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+                let currentPage = 1;
+
+                // Fonction pour afficher une page
+                const renderPage = (pageNum) => {
+                    pdf.getPage(pageNum).then(page => {
+                        const scale = 1.5;
+                        const viewport = page.getViewport({ scale });
+
+                        // Créer un canvas pour afficher la page
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+
+                        // Rendre la page sur le canvas
+                        const renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+                        page.render(renderContext).promise.then(() => {
+                            container.innerHTML = ''; // Nettoyer le conteneur
+                            container.appendChild(canvas);
+                        });
+                    });
+                };
+
+                // Afficher la première page
+                renderPage(currentPage);
+
+                // Navigation entre les pages
+                const prevButton = document.createElement('button');
+                prevButton.textContent = 'Page précédente';
+                prevButton.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderPage(currentPage);
+                    }
+                });
+
+                const nextButton = document.createElement('button');
+                nextButton.textContent = 'Page suivante';
+                nextButton.addEventListener('click', () => {
+                    if (currentPage < pdf.numPages) {
+                        currentPage++;
+                        renderPage(currentPage);
+                    }
+                });
+
+                // Ajouter les boutons de navigation
+                const navigation = document.createElement('div');
+                navigation.style.marginTop = '10px';
+                navigation.appendChild(prevButton);
+                navigation.appendChild(nextButton);
+                container.appendChild(navigation);
+
+            }).catch(error => {
+                console.error('Erreur lors du chargement du PDF :', error);
+                container.innerHTML = '<p>Impossible de charger le PDF.</p>';
+            });
+        }
+
+        // Empêcher le téléchargement
+        document.addEventListener('contextmenu', (e) => e.preventDefault()); // Désactiver le clic droit
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
+                e.preventDefault(); // Empêcher Ctrl+S
+            }
+        });
+
         // Données des vidéos (simulées à partir des informations fournies)
         const videosData = [
-            {
-                id: 1,
-                title: "Webinaire Fondation Florence — Fanny Letier",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/957592030/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "1h15min",
-                type: "conferences",
-                subtype: "webinaires",
-                description: "Fanny Letier partage son expérience et ses conseils sur l'entrepreneuriat et l'investissement.",
-                tags: ["entrepreneuriat", "finance", "conseil"]
-            },
-            {
-                id: 2,
-                title: "Webinaire Adrien Nussenbaum - Fondation Florence",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/953474850/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "55min",
-                type: "conferences",
-                subtype: "webinaires",
-                description: "Adrien Nussenbaum, co-fondateur de Mirakl, partage son parcours entrepreneurial.",
-                tags: ["entrepreneuriat", "tech", "international"]
-            },
-            {
-                id: 3,
-                title: "Webinaire Fondation Florence - François Paillier",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/942290993/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "45min",
-                type: "conferences",
-                subtype: "club_diplo",
-                description: "François Paillier présente les défis et opportunités du secteur financier.",
-                tags: ["finance", "marché", "conseil"]
-            },
-            {
-                id: 4,
-                title: "Guerre en Ukraine 2022 - 2026",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/945813084/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "1h20min",
-                type: "conferences",
-                subtype: "club_diplo",
-                description: "Analyse géopolitique du conflit en Ukraine et ses implications internationales.",
-                tags: ["international", "politique", "géopolitique"]
-            },
-            {
-                id: 5,
-                title: "Webinaire Fondation Florence - Marina Weiss",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/952018410/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "50min",
-                type: "conferences",
-                subtype: "femmes_florence",
-                description: "Marina Weiss présente les enjeux du secteur juridique et les opportunités de carrière.",
-                tags: ["droit", "carrière", "conseil"]
-            },
-            {
-                id: 6,
-                title: "Fondation Florence Webinaire _ Joel Palix",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/939092592/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "1h05min",
-                type: "conferences",
-                subtype: "webinaires",
-                description: "Joel Palix partage son expérience dans le secteur du luxe et de la beauté.",
-                tags: ["marketing", "luxe", "international"]
-            },
-            {
-                id: 7,
-                title: "Webinaire Fondation Florence - François Baroin",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/939105703/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "1h10min",
-                type: "conferences",
-                subtype: "club_diplo",
-                description: "François Baroin aborde les questions politiques et économiques actuelles.",
-                tags: ["politique", "économie", "finance"]
-            },
-            {
-                id: 8,
-                title: "Webinaire Fondation Florence _ Laurence Boone",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/939106430/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "1h",
-                type: "conferences",
-                subtype: "femmes_florence",
-                description: "Laurence Boone analyse les tendances économiques mondiales et européennes.",
-                tags: ["économie", "international", "finance"]
-            },
-            {
-                id: 9,
-                title: "Fondation Florence _ Webinaire Métier _ TS KPMG",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/924510338/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "45min",
-                type: "clubs",
-                subtype: "investclub",
-                description: "Présentation des métiers et opportunités de carrière chez KPMG.",
-                tags: ["audit", "conseil", "finance"]
-            },
-            {
-                id: 10,
-                title: "Webinaire Fondation Florence _ Mme Maya Atig",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/939092636/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "55min",
-                type: "clubs",
-                subtype: "investclub",
-                description: "Maya Atig partage son expertise sur la régulation financière et bancaire.",
-                tags: ["finance", "banque", "régulation"]
-            },
-            {
-                id: 11,
-                title: "Webinaire Fondation Florence _ Mr Raoul Salomon",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/939106593/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "50min",
-                type: "clubs",
-                subtype: "club_nego",
-                description: "Raoul Salomon présente les marchés financiers et les carrières dans la banque d'investissement.",
-                tags: ["finance", "marchés", "banque"]
-            },
-            {
-                id: 12,
-                title: "Webinaire metier _ Mr David Salabi - CAMBON PARTNERS",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/924510517/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "1h",
-                type: "clubs",
-                subtype: "investclub",
-                description: "David Salabi présente le métier de banquier d'affaires et les fusions-acquisitions.",
-                tags: ["finance", "m&a", "conseil"]
-            },
-            {
-                id: 13,
-                title: "Webinaire Psy Coaching - Paola Scemama - La Communication",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/939092290/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "40min",
-                type: "evenements",
-                subtype: "eloquence",
-                description: "Paola Scemama aborde les techniques de communication efficace en milieu professionnel.",
-                tags: ["coaching", "communication", "soft skills"]
-            },
-            {
-                id: 14,
-                title: "Webinaire RH - Albane Di Marco - Réussir son entretien",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/924510614/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "50min",
-                type: "tutoriel",
-                subtype: "mentor",
-                description: "Conseils pratiques pour réussir ses entretiens d'embauche par Albane Di Marco.",
-                tags: ["rh", "entretien", "carrière"]
-            },
-            {
-                id: 15,
-                title: "Webinaire Psy_Coaching - Le syndrome de l'imposteur",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/939092916/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "45min",
-                type: "tutoriel",
-                subtype: "talent",
-                description: "Paola Scemama explique le syndrome de l'imposteur et comment le surmonter.",
-                tags: ["coaching", "psychologie", "développement personnel"]
-            },
-            {
-                id: 16,
-                title: "Webinaire Paola Scemama — Neuropsychologue et coach",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/961291521/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "55min",
-                type: "tutoriel",
-                subtype: "talent",
-                description: "Approche neuropsychologique du développement professionnel et personnel.",
-                tags: ["coaching", "psychologie", "neurosciences"]
-            },
-            {
-                id: 17,
-                title: "Webinaire Fondation Florence Cédric Carles - Entrepreneuriat & Transition Energétique",
-                embedUrl: "https://vimeo.com/showcase/11236068/video/992029780/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
-                duration: "1h10min",
-                type: "evenements",
-                subtype: "soiree",
-                description: "Cédric Carles présente les opportunités d'entrepreneuriat dans la transition énergétique.",
-                tags: ["entrepreneuriat", "transition", "environnement"]
-            },
-            // Nouvelles vidéos ajoutées
-            {
-                id: 18,
-                title: "Club Gastronomique",
-                embedUrl: "https://player.vimeo.com/video/1057571258?badge=0&autopause=0&player_id=0&app_id=58479",
-                duration: "45min",
-                type: "evenements",
-                subtype: "soiree",
-                description: "Événement du Club Gastronomique de la Fondation Florence présentant des spécialités culinaires.",
-                tags: ["art-culture", "soirée", "gastronomie"]
-            },
-            {
-                id: 19,
-                title: "Exposition Origines",
-                embedUrl: "https://player.vimeo.com/video/1057568379?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479",
-                duration: "30min",
-                type: "evenements",
-                subtype: "soiree",
-                description: "Présentation de l'exposition 'Origines' organisée par la Fondation Florence.",
-                tags: ["art-culture", "exposition", "événement"]
-            },
-            {
-                id: 20,
-                title: "Film Antiracisme",
-                embedUrl: "https://player.vimeo.com/video/1057567291?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479",
-                duration: "25min",
-                type: "evenements",
-                subtype: "soiree",
-                description: "Film réalisé dans le cadre des initiatives contre le racisme et les discriminations.",
-                tags: ["société", "antiracisme", "art-culture"]
-            },
-            {
-                id: 21,
-                title: "École 100",
-                embedUrl: "https://player.vimeo.com/video/1057559485?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479",
-                duration: "20min",
-                type: "tutoriel",
-                subtype: "supra",
-                description: "Présentation des programmes de formation et des opportunités éducatives.",
-                tags: ["éducation", "formation", "école"]
-            },
-            {
-                id: 22,
-                title: "Talent 100",
-                embedUrl: "https://player.vimeo.com/video/1057505542?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479",
-                duration: "15min",
-                type: "tutoriel",
-                subtype: "talent",
-                description: "Programme de développement des talents de la Fondation Florence.",
-                tags: ["développement personnel", "carrière", "talent"]
-            },
-            {
-                id: 23,
-                title: "Mentors V2",
-                embedUrl: "https://player.vimeo.com/video/1057565997?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479",
-                duration: "35min",
-                type: "tutoriel",
-                subtype: "mentor",
-                description: "Présentation du programme de mentorat et de ses avantages pour les participants.",
-                tags: ["mentorat", "développement professionnel", "accompagnement"]
-            },
-            {
-                id: 24,
-                title: "Entreprise 100",
-                embedUrl: "https://player.vimeo.com/video/1057561289?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479",
-                duration: "40min",
-                type: "clubs",
-                subtype: "investclub",
-                description: "Présentation des partenariats entreprises et des opportunités professionnelles.",
-                tags: ["entreprise", "partenariat", "carrière"]
-            }
+            // ... (vos données existantes)
         ];
 
         // Données des ressources entreprises (simulées)
         const ressourcesData = [
-            {
-                id: 1,
-                title: "Présentation de la Fondation Florence",
-                type: "document",
-                category: "about",
-                fileUrl: "https://example.com/documents/presentation-florence.pdf",
-                description: "Document de présentation de la Fondation Florence et de sa mission.",
-                tags: ["présentation", "mission", "fondation"]
-            },
-            {
-                id: 2,
-                title: "Guide du mentorat",
-                type: "document",
-                category: "guides",
-                fileUrl: "https://example.com/documents/guide-mentorat.pdf",
-                description: "Guide pratique pour les mentors et mentorés de la Fondation Florence.",
-                tags: ["mentorat", "guide", "accompagnement"]
-            },
-            {
-                id: 3,
-                title: "Partenariat KPMG",
-                type: "document",
-                category: "partners",
-                fileUrl: "https://example.com/documents/partenariat-kpmg.pdf",
-                description: "Présentation du partenariat avec KPMG et des opportunités offertes.",
-                tags: ["kpmg", "partenariat", "audit"]
-            },
-            {
-                id: 4,
-                title: "Partenariat Rothschild & Co",
-                type: "document",
-                category: "partners",
-                fileUrl: "https://example.com/documents/partenariat-rothschild.pdf",
-                description: "Présentation du partenariat avec Rothschild & Co et des opportunités offertes.",
-                tags: ["rothschild", "partenariat", "finance"]
-            },
-            {
-                id: 5,
-                title: "Guide d'utilisation de la plateforme",
-                type: "document",
-                category: "guides",
-                fileUrl: "https://example.com/documents/guide-plateforme.pdf",
-                description: "Guide d'utilisation de la plateforme Florence NU.",
-                tags: ["plateforme", "guide", "utilisation"]
-            },
-            {
-                id: 6,
-                title: "Histoire et valeurs de la Fondation",
-                type: "document",
-                category: "about",
-                fileUrl: "https://example.com/documents/histoire-valeurs.pdf",
-                description: "Présentation de l'histoire et des valeurs de la Fondation Florence.",
-                tags: ["histoire", "valeurs", "fondation"]
-            },
-            {
-                id: 7,
-                title: "Partenariat Lazard Frères",
-                type: "document",
-                category: "partners",
-                fileUrl: "https://example.com/documents/partenariat-lazard.pdf",
-                description: "Présentation du partenariat avec Lazard Frères et des opportunités offertes.",
-                tags: ["lazard", "partenariat", "finance"]
-            },
-            {
-                id: 8,
-                title: "Guide de préparation aux stages",
-                type: "document",
-                category: "guides",
-                fileUrl: "https://example.com/documents/guide-stages.pdf",
-                description: "Guide pratique pour préparer et réussir ses stages professionnels.",
-                tags: ["stages", "guide", "préparation"]
-            }
+            // ... (vos données existantes)
         ];
 
         // Données des fiches de révision (simulées)
         const revisionsData = [
-            {
-                id: 1,
-                title: "Document de révision Fondation Florence",
-                type: "document",
-                domain: "général",
-                fileUrl: "https://fondationflorence.my.salesforce.com/sfc/p/07000000ZXDA/a/Jv000008dV0v/0TMCzmlen00i_Qo_I.QsMC.TuDGY3FjaoAWbNLnAVwY",
-                duration: "Varié",
-                description: "Document de révision et ressources pédagogiques de la Fondation Florence.",
-                tags: ["révision", "formation", "ressources"]
-            }
+            // ... (vos données existantes)
         ];
 
         // Données des cas pratiques (simulées)
         const casData = [
-            {
-                id: 1,
-                title: "Etude de cas proposé par Julien Psauté (utilisée plus de 200 fois en entretien BCG Paris entre 2012 et 2016)",
-                type: "inline",
-                domain: "consulting",
-                imageUrl: "https://raw.githubusercontent.com/FondationFlorence/FLONU/d39b8dd336af50f824dcb18708839be5cc670698/images/sup.png",
-                content: `<p><strong><u>ÉNONCÉ :</u></strong></p>
-                <p>Votre client est un groupe de supermarchés. Le groupe dispose de 200 magasins répartis sur le territoire sans biais particulier. Le supermarché type dispose d'une surface de 2000m² et se trouve généralement dans des zones péri-urbaines : accès plutôt en voiture ou en marchant, petit parking devant le magasin, devantures limitées. Le client a besoin de vous pour comprendre l'érosion de la rentabilité du réseau et de construire un plan d'amélioration. Le chiffre d'affaires est de 2Bn€ avec une rentabilité (EBITDA) de 5% ce qui est inférieur aux concurrents qui parviennent pour certains à atteindre 10%.</p>
-                
-                <button id="toggleSolution" style="margin-top: 20px; padding: 10px 15px; background-color: #2F80ED; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">Afficher la solution indicative</button>
-                
-                <div id="solutionContent" style="display: none; margin-top: 20px; padding: 25px; background-color: #f5f5f5; border-left: 4px solid #2F80ED; border-radius: 0 4px 4px 0;">
-                    <h2 style="color: #2F80ED; margin-bottom: 25px; text-align: center;"><strong>Solutions indicatives</strong></h2>
-                    
-                    <div style="margin-bottom: 30px;">
-                        <h3 style="color: #444; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">a/ Comprendre la décomposition du P&L</h3>
-                        <p style="line-height: 1.7; margin-bottom: 12px;">La première étape consiste à bien comprendre la décomposition du P&L, qui peut être assez surprenant. Une première discussion consiste à identifier les principaux postes et à les quantifier en grosses mailles. Les achats constituent évidemment le gros du P&L, ce qui donne des marges brutes très basses (aux alentours de 20%). Viennent ensuite les frais de personnel, les loyers, les consommations d'électricité notamment (réfrigérateurs).</p>
-                        
-                        <p style="line-height: 1.7; margin-bottom: 12px;">Il existe un autre poste de coûts important, sauriez-vous réfléchir à ce que cela peut être ? Imaginez ce qu'est la vie d'un supermarché ?</p>
-                        
-                        <p style="line-height: 1.7; margin-bottom: 12px;">Le poste qui s'appelle <strong>« casse »</strong> est effectivement assez important, il comprend la casse des denrées pendant les mises en magasin, les articles périmés et le vol. Il peut représenter jusqu'à <strong>2% du CA</strong>.</p>
-                    </div>
-                    
-                    <div style="margin-bottom: 30px;">
-                        <h3 style="color: #444; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">b/ Exercice de dimensionnement</h3>
-                        <p style="line-height: 1.7; margin-bottom: 12px;"><strong>Question :</strong> Que représentent les frais de personnel dans un supermarché en % du CA ?</p>
-                        
-                        <div style="background-color: #e9f5ff; padding: 15px; border-radius: 5px; margin-top: 10px;">
-                            <p style="line-height: 1.7; margin-bottom: 12px;"><strong>Réponse :</strong> Imaginons un supermarché standard. Son CA est de 10m€ (2bn€ / 200 magasins). 2000m² correspond pour les parisiens à un grand Carrefour Market.</p>
-                            
-                            <p style="line-height: 1.7; margin-bottom: 12px;">Il faut savoir qu'il y a environ 1 caissier pour 1 back office. 1 manager et 1 comptable. Pour trouver le nombre de caissiers : les magasins sont ouverts environ 12h dans la journée. Il faut qu'il y ait toujours 2 caisses ouvertes. Les magasins sont également ouverts le samedi. On trouve qu'il faut entre 5 et 6 caissiers.</p>
-                            
-                            <p style="line-height: 1.7; margin-bottom: 12px;">Disons donc que le staff est en tout décomposé comme :</p>
-                            <ul style="list-style-type: disc; padding-left: 25px; margin-bottom: 12px;">
-                                <li>1 manager (6k/m avec charges)</li>
-                                <li>1 comptable (4k€/m avec charges)</li>
-                                <li>12 personnes en magasin (3k€/m avec charges)</li>
-                            </ul>
-                            
-                            <p style="line-height: 1.7;">Cela représente 46k€ par mois => Environ 550k€ par an, soit <strong>5.5% du CA</strong>.</p>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 30px;">
-                        <h3 style="color: #444; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">c/ Identification des axes d'amélioration</h3>
-                        <p style="line-height: 1.7; margin-bottom: 12px;">Admettons que la structure simplifiée de coûts soit la suivante pour le cas du client :</p>
-                        <ul style="list-style-type: none; padding-left: 25px; margin-bottom: 20px;">
-                            <li style="margin-bottom: 8px;">- Achats : <strong>80%</strong></li>
-                            <li style="margin-bottom: 8px;">- Frais de personnel : <strong>5%</strong></li>
-                            <li style="margin-bottom: 8px;">- Autres charges : <strong>8%</strong></li>
-                            <li style="margin-bottom: 8px;">- Casse : <strong>2%</strong></li>
-                        </ul>
-                        
-                        <p style="line-height: 1.7; margin-bottom: 12px;">Les conditions d'achat du client sont très similaires aux concurrents similaires, le levier achat pur n'est donc pas à creuser (le même produit est acheté le même prix).</p>
-                        
-                        <p style="line-height: 1.7; margin-bottom: 12px;"><strong>Question :</strong> Quels seraient pour vous les 3 premiers axes que vous voudriez creuser pour augmenter la rentabilité ?</p>
-                        
-                        <div style="background-color: #e9f5ff; padding: 15px; border-radius: 5px; margin-top: 10px;">
-                            <p style="line-height: 1.7; margin-bottom: 12px;"><strong>Réponse :</strong> Une des premières choses à essayer de faire consiste à préparer des benchmarks. Les supermarchés sont nombreux et beaucoup d'info est disponible. Ici, en y passant un peu de temps, on pourrait comprendre que les magasins du client souffrent d'un volume d'affaire au m² de surface moins bon, de prix en retrait et de casse importante.</p>
-                            
-                            <p style="line-height: 1.7; margin-bottom: 12px;">Sans cet indice, on peut évidemment creuser les différents sujets :</p>
-                            
-                            <ul style="list-style-type: disc; padding-left: 25px; margin-bottom: 12px;">
-                                <li><strong>Sur les frais de personnel :</strong> voir s'il n'est pas possible d'optimiser la couverture des horaires en fermant une caisse le matin, en créant des profils volants, etc.</li>
-                                <li><strong>Sur les autres charges :</strong> négocier un à un les contrats notamment sur l'electricité.</li>
-                                <li><strong>Pour la casse :</strong> analyser les sources de casse et prendre des mesures en conséquence si le ROI est bon (ex : bager plus de produits pour contrer le vol).</li>
-                                <li><strong>Sur le CA qui est le levier auquel on ne pense pas tout de suite :</strong> 
-                                    <ul style="list-style-type: circle; padding-left: 20px; margin-top: 5px;">
-                                        <li>Les prix (on peut les remonter si l'on prend soin des surfaces)</li>
-                                        <li>Les paniers moyens (optimiser le parcours en magasin par exemple)</li>
-                                        <li>Les promotions qui sont vectrices de traffic et augmentent le panier moyen</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 30px;">
-                        <h3 style="color: #444; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">d/ Analyse d'impact</h3>
-                        <p style="line-height: 1.7; margin-bottom: 12px;"><strong>Question :</strong> Supposons que nos travaux aient permis d'identifier des leviers qui portent essentiellement sur la croissance du CA. Nous pensons que tous ces leviers permettent d'accroitre le CA de 10%. Quelle serait l'évolution de la marge ?</p>
-                        
-                        <div style="background-color: #e9f5ff; padding: 15px; border-radius: 5px; margin-top: 10px;">
-                            <p style="line-height: 1.7; margin-bottom: 12px;"><strong>Réponse :</strong> En dehors des coûts d'achat, les autres coûts sont fixes.</p>
-                            <div style="background-color: white; padding: 15px; border-radius: 5px; margin: 10px 0;">
-                                <p>Quand le CA était à 100, il passe à 110.</p>
-                                <p>La marge brute était à 20 et passe à 22.</p>
-                                <p>En dessous on a 15% de frais fixes et ils passent donc de 15 à 15.</p>
-                                <p>La profitabilité passe donc de 5 à 7.</p>
-                            </div>
-                            <p style="line-height: 1.7;"><strong>Attention</strong>, en % du CA cela veut dire que la profitabilité passe de 5% à 7 pour 110 et donc ~6.2%.</p>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 20px;">
-                        <h3 style="color: #444; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">e/ Conclusion</h3>
-                        <p style="line-height: 1.7;"><strong>Question :</strong> Pouvez vous conclure en quelques phrases ?</p>
-                        
-                        <div style="background-color: #e9f5ff; padding: 15px; border-radius: 5px; margin-top: 10px;">
-                            <p style="line-height: 1.7;"><strong>Réponse attendue :</strong> Le consultant doit mettre en avant les principaux leviers identifiés (réduction de la casse, optimisation des ressources humaines, et surtout l'augmentation du CA via l'amélioration des prix et du panier moyen), quantifier l'impact potentiel des optimisations, et proposer un plan de mise en œuvre.</p>
-                        </div>
-                    </div>
-                </div>`,
-                description: "Étude de cas classique utilisée lors des entretiens de recrutement au BCG Paris. Ce cas a servi de référence pour l'évaluation des candidats pendant plusieurs années et couvre des problématiques de stratégie d'entreprise et d'analyse de marché.",
-                tags: ["consulting", "bcg", "entretien", "stratégie", "cas réel"]
-            }
+            // ... (vos données existantes)
         ];
 
         // Données des ressources entretiens (simulées)
         const entretienData = [
-            {
-                id: 1,
-                title: "Guide d'entretien - Cabinets d'avocats d'affaires",
-                type: "document",
-                domain: "droit",
-                fileUrl: "https://example.com/documents/guide-entretien-avocats.pdf",
-                description: "Guide de préparation aux entretiens dans les cabinets d'avocats d'affaires.",
-                tags: ["droit", "entretien", "cabinet"]
-            },
-            {
-                id: 2,
-                title: "Guide d'entretien - Banques d'investissement",
-                type: "document",
-                domain: "finance",
-                fileUrl: "https://example.com/documents/guide-entretien-banques.pdf",
-                description: "Guide de préparation aux entretiens dans les banques d'investissement.",
-                tags: ["finance", "entretien", "banque"]
-            },
-            {
-                id: 3,
-                title: "Guide d'entretien - Cabinets de conseil en stratégie",
-                type: "document",
-                domain: "consulting",
-                fileUrl: "https://example.com/documents/guide-entretien-conseil.pdf",
-                description: "Guide de préparation aux entretiens dans les cabinets de conseil en stratégie.",
-                tags: ["consulting", "entretien", "stratégie"]
-            },
-            {
-                id: 4,
-                title: "Questions fréquentes - Entretiens juridiques",
-                type: "document",
-                domain: "droit",
-                fileUrl: "https://example.com/documents/questions-juridiques.pdf",
-                description: "Compilation des questions fréquemment posées lors des entretiens juridiques.",
-                tags: ["droit", "questions", "entretien"]
-            },
-            {
-                id: 5,
-                title: "Questions fréquentes - Entretiens finance",
-                type: "document",
-                domain: "finance",
-                fileUrl: "https://example.com/documents/questions-finance.pdf",
-                description: "Compilation des questions fréquemment posées lors des entretiens en finance.",
-                tags: ["finance", "questions", "entretien"]
-            },
-            {
-                id: 6,
-                title: "Questions fréquentes - Entretiens consulting",
-                type: "document",
-                domain: "consulting",
-                fileUrl: "https://example.com/documents/questions-consulting.pdf",
-                description: "Compilation des questions fréquemment posées lors des entretiens en consulting.",
-                tags: ["consulting", "questions", "entretien"]
-            }
+            // ... (vos données existantes)
         ];
 
         // Données des quiz (extraites des exemples fournis)
         const quizData = [
-            {
-                id: 1,
-                title: "Quiz 1 - M&A (Fusions & Acquisitions)",
-                domain: "finance",
-                description: "Quiz sur les fusions et acquisitions dans la section Finance d'Entreprise",
-                tags: ["finance", "m&a", "entreprise"],
-                questions: [
-                    {
-                        question: "Quel est l'objectif principal d'une opération de fusion-acquisition ?",
-                        options: [
-                            "Réduire le capital de l'entreprise acheteuse",
-                            "Créer de la valeur en combinant les forces des entreprises fusionnées",
-                            "Limiter l'exposition aux marchés financiers"
-                        ],
-                        correctAnswer: 1,
-                        explanation: "L'objectif clé d'une fusion-acquisition est de générer de la valeur en réalisant des synergies (économies d'échelle, accès à de nouveaux marchés, optimisation des coûts, etc.). L'idée est que l'ensemble vaut plus que la somme des parties."
-                    },
-                    {
-                        question: "Quelle est la différence principale entre une fusion et une acquisition ?",
-                        options: [
-                            "Dans une fusion, les entreprises fusionnent en une seule entité, alors que dans une acquisition, l'une prend le contrôle de l'autre",
-                            "Une fusion implique forcément une transaction en cash, tandis qu'une acquisition utilise uniquement des actions",
-                            "Une fusion est toujours amicale, tandis qu'une acquisition est forcément hostile"
-                        ],
-                        correctAnswer: 0,
-                        explanation: "Une fusion consiste à combiner deux entreprises pour en former une nouvelle, tandis qu'une acquisition implique que l'une absorbe l'autre, qui peut disparaître ou rester une filiale. Une acquisition peut être amicale ou hostile, contrairement à une idée reçue."
-                    },
-                    {
-                        question: "Quelle méthode est la plus couramment utilisée pour valoriser une entreprise dans une opération de M&A ?",
-                        options: [
-                            "La méthode des flux de trésorerie actualisés (DCF - Discounted Cash Flow)",
-                            "L'analyse des coûts fixes et variables",
-                            "Le calcul du coût du capital propre"
-                        ],
-                        correctAnswer: 0,
-                        explanation: "La méthode DCF consiste à estimer la valeur future des flux de trésorerie générés par l'entreprise et à les actualiser pour obtenir une valeur présente. C'est une approche robuste, bien que souvent complétée par d'autres méthodes (comparables boursiers, transactions similaires, etc.)."
-                    },
-                    {
-                        question: "Qu'est-ce qu'une synergie dans une opération de fusion-acquisition ?",
-                        options: [
-                            "Une hausse automatique du cours de bourse après l'opération",
-                            "Les économies de coûts ou gains de revenus générés par la combinaison des entreprises",
-                            "Une prime versée aux actionnaires de l'entreprise cible"
-                        ],
-                        correctAnswer: 1,
-                        explanation: "Les synergies sont les bénéfices attendus d'une fusion-acquisition, qu'ils soient financiers (réduction des coûts, économies d'échelle) ou stratégiques (accès à un nouveau marché, innovation commune, etc.). Elles justifient en grande partie le prix payé par l'acheteur."
-                    },
-                    {
-                        question: "Qu'est-ce qu'une offre publique d'achat (OPA) hostile ?",
-                        options: [
-                            "Une tentative de rachat contre la volonté du conseil d'administration de la cible",
-                            "Une fusion entre deux entreprises concurrentes",
-                            "Un rachat effectué sans emprunt bancaire"
-                        ],
-                        correctAnswer: 0,
-                        explanation: "Une OPA hostile est une offre de rachat faite directement aux actionnaires d'une entreprise sans l'accord de son conseil d'administration. Cela peut entraîner des résistances et des stratégies de défense comme le poison pill ou le white knight."
-                    }
-                ]
-            },
-            {
-                id: 2,
-                title: "Quiz 2 - M&A (Fusions & Acquisitions) avancé",
-                domain: "finance",
-                description: "Quiz avancé sur les fusions et acquisitions",
-                tags: ["finance", "m&a", "avancé"],
-                questions: [
-                    {
-                        question: "Quelle est la principale raison d'un rachat financé par effet de levier (LBO - Leveraged Buyout) ?",
-                        options: [
-                            "Maximiser la rentabilité pour les investisseurs en utilisant une forte part de dette",
-                            "Éviter de mobiliser trop de fonds propres pour un rachat",
-                            "Éviter toute dilution des actionnaires existants"
-                        ],
-                        correctAnswer: 0,
-                        explanation: "Un LBO repose sur l'idée que l'endettement permet d'augmenter le rendement pour les investisseurs. L'acquéreur finance le rachat principalement par dette, remboursée avec les futurs flux de trésorerie de la société cible."
-                    },
-                    {
-                        question: "Lors d'une acquisition, que signifie le terme \"earn-out\" ?",
-                        options: [
-                            "Une clause qui permet à l'entreprise cible d'acheter des actions de l'acheteur",
-                            "Un paiement conditionnel basé sur la performance future de l'entreprise cible",
-                            "Une option pour les actionnaires minoritaires de revendre leurs parts à l'acquéreur"
-                        ],
-                        correctAnswer: 1,
-                        explanation: "Un earn-out est un paiement différé et conditionnel que l'acquéreur verse au vendeur si la société atteint certains objectifs financiers ou stratégiques après la transaction. Cela permet de partager le risque entre acheteur et vendeur."
-                    },
-                    {
-                        question: "Quelle est la principale méthode de défense contre une OPA hostile ?",
-                        options: [
-                            "Le \"poison pill\", qui consiste à rendre l'acquisition plus coûteuse pour l'attaquant",
-                            "Un rachat massif des actions par le management",
-                            "La réduction volontaire du cours de l'action"
-                        ],
-                        correctAnswer: 0,
-                        explanation: "Le poison pill est une tactique anti-OPA où la société cible émet de nouvelles actions ou modifie sa structure pour rendre l'acquisition prohibitive pour l'acheteur hostile. D'autres stratégies incluent le white knight (recherche d'un acheteur amical)."
-                    }
-                ]
-            },
-            {
-                id: 3,
-                title: "Quiz 3 - Consulting & Stratégie",
-                domain: "consulting",
-                description: "Quiz sur les fondamentaux du conseil en stratégie",
-                tags: ["consulting", "stratégie", "fondamentaux"],
-                questions: [
-                    {
-                        question: "Quelle est la principale mission d'un consultant en stratégie ?",
-                        options: [
-                            "Aider les entreprises à améliorer leur compétitivité et leur rentabilité grâce à des recommandations stratégiques",
-                            "Gérer la comptabilité et le reporting financier des entreprises",
-                            "Accompagner les sociétés dans l'implémentation de logiciels ERP"
-                        ],
-                        correctAnswer: 0,
-                        explanation: "Un consultant en stratégie analyse les défis d'une entreprise et propose des solutions pour améliorer sa position concurrentielle (croissance, digitalisation, réduction des coûts, diversification, etc.)."
-                    },
-                    {
-                        question: "Quelle méthodologie est la plus souvent utilisée en consulting pour structurer une analyse stratégique ?",
-                        options: [
-                            "L'approche MECE (Mutually Exclusive, Collectively Exhaustive)",
-                            "La théorie des jeux appliquée aux fusions-acquisitions",
-                            "L'analyse des écarts de bilan comptable"
-                        ],
-                        correctAnswer: 0,
-                        explanation: "Le MECE est un principe fondamental du conseil en stratégie, où les catégories d'analyse doivent être mutuellement exclusives (aucun chevauchement) et collectivement exhaustives (pas d'oubli de cas possibles)."
-                    },
-                    {
-                        question: "Dans une étude de marché, quel est l'objectif principal d'une analyse SWOT ?",
-                        options: [
-                            "Identifier les forces, faiblesses, opportunités et menaces d'une entreprise",
-                            "Comparer la rentabilité de l'entreprise avec celle de ses concurrents",
-                            "Évaluer la satisfaction des employés par rapport à la gouvernance"
-                        ],
-                        correctAnswer: 0,
-                        explanation: "L'analyse SWOT (Strengths, Weaknesses, Opportunities, Threats) est un outil essentiel en consulting pour comprendre la position stratégique d'une entreprise face à son marché et ses concurrents."
-                    }
-                ]
-            },
-            {
-                id: 4,
-                title: "Quiz 4 - Consulting & Stratégie avancé",
-                domain: "consulting",
-                description: "Quiz avancé sur le conseil en stratégie et les entretiens",
-                tags: ["consulting", "entretien", "cas"],
-                questions: [
-                    {
-                        question: "Quelle est la structure typique d'un entretien de conseil en stratégie ?",
-                        options: [
-                            "Présentation du candidat, étude de cas, questions-réponses avec le recruteur",
-                            "Test psychométrique, rédaction d'un mémoire, présentation orale",
-                            "Étude approfondie du CV et mise en situation opérationnelle"
-                        ],
-                        correctAnswer: 0,
-                        explanation: "Les entretiens en conseil en stratégie suivent généralement un format standard : 1. Présentation rapide du candidat, 2. Étude de cas où il doit résoudre un problème stratégique, 3. Q&A avec le recruteur sur ses motivations et son parcours."
-                    },
-                    {
-                        question: "Quelle technique est souvent utilisée pour résoudre une étude de cas en consulting ?",
-                        options: [
-                            "La segmentation du problème en plusieurs hypothèses testables",
-                            "La recherche des meilleures réponses sur Google",
-                            "L'improvisation en fonction de l'intuition du consultant"
-                        ],
-                        correctAnswer: 0,
-                        explanation: "Les consultants apprennent à segmenter un problème complexe en plusieurs éléments analytiques et tester des hypothèses logiques avant de formuler une recommandation. Cette méthode est essentielle dans les études de cas."
-                    },
-                    {
-                        question: "Quelle est la différence entre un consultant en stratégie et un consultant en management ?",
-                        options: [
-                            "Le consultant en stratégie se concentre sur les décisions long terme, tandis que le consultant en management travaille sur l'optimisation des opérations au quotidien",
-                            "Il n'y a aucune différence entre les deux",
-                            "Le consultant en management travaille uniquement avec des PME, tandis que le consultant en stratégie ne conseille que des multinationales"
-                        ],
-                        correctAnswer: 0,
-                        explanation: "Le consulting en stratégie concerne les grandes décisions stratégiques (croissance, acquisition, entrée sur un marché), tandis que le consulting en management traite l'amélioration des processus opérationnels et organisationnels au sein de l'entreprise."
-                    }
-                ]
-            }
+            // ... (vos données existantes)
         ];
-
-        // Données des entretiens blancs (simulées)
-        /* Supprimé */
-
-        // Dictionnaire des sous-types par type
-        const videoSubtypes = {
-            "conferences": [
-                { value: "club_diplo", label: "Club Diplo" },
-                { value: "femmes_florence", label: "Femmes de Florence" },
-                { value: "pizzart", label: "Pizz'Art" },
-                { value: "webinaires", label: "Webinaires" }
-            ],
-            "evenements": [
-                { value: "soiree", label: "Soirée" },
-                { value: "sport", label: "Sport" },
-                { value: "eloquence", label: "Éloquence" }
-            ],
-            "clubs": [
-                { value: "investclub", label: "InvestClub" },
-                { value: "club_nego", label: "Club de Négo" },
-                { value: "stem_club", label: "Stem Club" },
-                { value: "club_cracks", label: "Club des cracks" }
-            ],
-            "tutoriel": [
-                { value: "talent", label: "Talent" },
-                { value: "mentor", label: "Mentor" },
-                { value: "supra", label: "Supra" }
-            ]
-        };
-        
-        // Dictionnaire des sous-domaines par domaine
-        const subdomains = {
-            "droit": [
-                { value: "affaires", label: "Droit des affaires" },
-                { value: "social", label: "Droit social" },
-                { value: "fiscal", label: "Droit fiscal" },
-                { value: "propriete", label: "Propriété intellectuelle" }
-            ],
-            "finance": [
-                { value: "trading", label: "Trading" },
-                { value: "m&a", label: "Fusions & Acquisitions" },
-                { value: "investment", label: "Investment Banking" },
-                { value: "asset", label: "Asset Management" }
-            ],
-            "consulting": [
-                { value: "strategie", label: "Stratégie" },
-                { value: "operations", label: "Opérations" },
-                { value: "digital", label: "Transformation digitale" },
-                { value: "finance", label: "Finance" }
-            ]
-        };
 
         // Fonction pour créer un élément de vidéo
         function createVideoElement(video) {
@@ -1378,7 +753,7 @@
             </div>
             `;
         }
-        
+
         // Fonction pour obtenir le libellé du type
         function getTypeLabel(typeValue) {
             const typeMap = {
@@ -1389,7 +764,7 @@
             };
             return typeMap[typeValue] || typeValue;
         }
-        
+
         // Fonction pour obtenir le libellé du sous-type
         function getSubtypeLabel(typeValue, subtypeValue) {
             if (!videoSubtypes[typeValue]) return subtypeValue;
@@ -1469,9 +844,6 @@
             </div>
             `;
         }
-
-        // Fonction pour créer un élément de réservation d'entretien
-        /* Supprimé */
 
         // Fonction pour générer un quiz actif
         function generateActiveQuiz(quizId) {
@@ -1964,11 +1336,28 @@
                         const fileUrl = preview.getAttribute('data-url');
                         const title = preview.closest('.content-card').querySelector('.card-title').textContent;
                         
-                        document.querySelector('.document-viewer .viewer-title').textContent = title;
-                        document.querySelector('.document-frame').src = fileUrl;
-                        document.querySelector('.document-content').style.display = 'none';
-                        document.querySelector('.document-frame').style.display = 'block';
-                        document.querySelector('.document-viewer').classList.add('active');
+                        if (fileUrl.endsWith('.pdf')) {
+                            // Afficher la liseuse PDF
+                            document.querySelector('.document-viewer .viewer-title').textContent = title;
+                            document.querySelector('.document-content').style.display = 'none';
+                            document.querySelector('.document-frame').style.display = 'none';
+                            document.querySelector('.document-viewer').classList.add('active');
+
+                            // Initialiser la liseuse PDF
+                            const pdfContainer = document.createElement('div');
+                            pdfContainer.id = 'pdf-viewer-container';
+                            pdfContainer.style.width = '100%';
+                            pdfContainer.style.height = '80vh';
+                            document.querySelector('.document-viewer').appendChild(pdfContainer);
+                            initPDFViewer(fileUrl, 'pdf-viewer-container');
+                        } else {
+                            // Afficher d'autres types de documents
+                            document.querySelector('.document-viewer .viewer-title').textContent = title;
+                            document.querySelector('.document-frame').src = fileUrl;
+                            document.querySelector('.document-content').style.display = 'none';
+                            document.querySelector('.document-frame').style.display = 'block';
+                            document.querySelector('.document-viewer').classList.add('active');
+                        }
                     }
                 }
             });
@@ -1977,6 +1366,11 @@
             document.querySelector('.close-viewer').addEventListener('click', function() {
                 document.querySelector('.document-viewer').classList.remove('active');
                 document.querySelector('.document-frame').src = '';
+                document.querySelector('.document-content').style.display = 'none';
+                const pdfContainer = document.getElementById('pdf-viewer-container');
+                if (pdfContainer) {
+                    pdfContainer.remove();
+                }
             });
             
             // Validation du quiz
