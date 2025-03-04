@@ -241,23 +241,6 @@
             border-radius: 4px;
             color: var(--secondary-color);
         }
-        
-        .card-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        
-        .action-btn {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background-color: var(--light-gray);
-            cursor: pointer;
-        }
 
         /* Onglets Flo NU */
         .tertiary-nav {
@@ -486,9 +469,27 @@
                 <button class="filter-btn active" data-filter="all">Tous</button>
                 <select class="filter-dropdown" id="type-filter">
                     <option value="">Types</option>
-                    <option value="webinaire">Webinaire</option>
-                    <option value="podcast">Podcast</option>
-                    <option value="interview">Interview</option>
+                    <option value="conferences">Conférences & Webinaire</option>
+                    <option value="evenements">Événements</option>
+                    <option value="clubs">Clubs Pros</option>
+                    <option value="tutoriel">Tutoriel</option>
+                </select>
+                <select class="filter-dropdown" id="subtype-filter">
+                    <option value="">Catégorie</option>
+                    <option value="club_diplo">Club Diplo</option>
+                    <option value="femmes_florence">Femmes de Florence</option>
+                    <option value="pizzart">Pizz'Art</option>
+                    <option value="webinaires">Webinaires</option>
+                    <option value="soiree">Soirée</option>
+                    <option value="sport">Sport</option>
+                    <option value="eloquence">Éloquence</option>
+                    <option value="investclub">InvestClub</option>
+                    <option value="club_nego">Club de Négo</option>
+                    <option value="stem_club">Stem Club</option>
+                    <option value="club_cracks">Club des cracks</option>
+                    <option value="talent">Tuto Talent</option>
+                    <option value="mentor">Tuto Mentor</option>
+                    <option value="supra">Tuto Supra</option>
                 </select>
                 <select class="filter-dropdown" id="duration-filter">
                     <option value="">Durée</option>
@@ -506,6 +507,12 @@
                     <option value="rh">RH</option>
                     <option value="politique">Politique</option>
                     <option value="international">International</option>
+                    <option value="art-culture">Art & Culture</option>
+                    <option value="gastronomie">Gastronomie</option>
+                    <option value="exposition">Exposition</option>
+                    <option value="société">Société</option>
+                    <option value="éducation">Éducation</option>
+                    <option value="mentorat">Mentorat</option>
                 </select>
             </div>
             
@@ -653,7 +660,8 @@
                 title: "Webinaire Fondation Florence — Fanny Letier",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/957592030/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "1h15min",
-                type: "webinaire",
+                type: "conferences",
+                subtype: "webinaires",
                 description: "Fanny Letier partage son expérience et ses conseils sur l'entrepreneuriat et l'investissement.",
                 tags: ["entrepreneuriat", "finance", "conseil"]
             },
@@ -662,7 +670,8 @@
                 title: "Webinaire Adrien Nussenbaum - Fondation Florence",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/953474850/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "55min",
-                type: "webinaire",
+                type: "conferences",
+                subtype: "webinaires",
                 description: "Adrien Nussenbaum, co-fondateur de Mirakl, partage son parcours entrepreneurial.",
                 tags: ["entrepreneuriat", "tech", "international"]
             },
@@ -671,7 +680,8 @@
                 title: "Webinaire Fondation Florence - François Paillier",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/942290993/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "45min",
-                type: "webinaire",
+                type: "conferences",
+                subtype: "club_diplo",
                 description: "François Paillier présente les défis et opportunités du secteur financier.",
                 tags: ["finance", "marché", "conseil"]
             },
@@ -680,7 +690,8 @@
                 title: "Guerre en Ukraine 2022 - 2026",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/945813084/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "1h20min",
-                type: "webinaire",
+                type: "conferences",
+                subtype: "club_diplo",
                 description: "Analyse géopolitique du conflit en Ukraine et ses implications internationales.",
                 tags: ["international", "politique", "géopolitique"]
             },
@@ -689,7 +700,8 @@
                 title: "Webinaire Fondation Florence - Marina Weiss",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/952018410/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "50min",
-                type: "webinaire",
+                type: "conferences",
+                subtype: "femmes_florence",
                 description: "Marina Weiss présente les enjeux du secteur juridique et les opportunités de carrière.",
                 tags: ["droit", "carrière", "conseil"]
             },
@@ -698,7 +710,8 @@
                 title: "Fondation Florence Webinaire _ Joel Palix",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/939092592/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "1h05min",
-                type: "webinaire",
+                type: "conferences",
+                subtype: "webinaires",
                 description: "Joel Palix partage son expérience dans le secteur du luxe et de la beauté.",
                 tags: ["marketing", "luxe", "international"]
             },
@@ -707,7 +720,8 @@
                 title: "Webinaire Fondation Florence - François Baroin",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/939105703/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "1h10min",
-                type: "webinaire",
+                type: "conferences",
+                subtype: "club_diplo",
                 description: "François Baroin aborde les questions politiques et économiques actuelles.",
                 tags: ["politique", "économie", "finance"]
             },
@@ -716,7 +730,8 @@
                 title: "Webinaire Fondation Florence _ Laurence Boone",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/939106430/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "1h",
-                type: "webinaire",
+                type: "conferences",
+                subtype: "femmes_florence",
                 description: "Laurence Boone analyse les tendances économiques mondiales et européennes.",
                 tags: ["économie", "international", "finance"]
             },
@@ -725,7 +740,8 @@
                 title: "Fondation Florence _ Webinaire Métier _ TS KPMG",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/924510338/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "45min",
-                type: "webinaire",
+                type: "clubs",
+                subtype: "investclub",
                 description: "Présentation des métiers et opportunités de carrière chez KPMG.",
                 tags: ["audit", "conseil", "finance"]
             },
@@ -734,7 +750,8 @@
                 title: "Webinaire Fondation Florence _ Mme Maya Atig",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/939092636/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "55min",
-                type: "webinaire",
+                type: "clubs",
+                subtype: "investclub",
                 description: "Maya Atig partage son expertise sur la régulation financière et bancaire.",
                 tags: ["finance", "banque", "régulation"]
             },
@@ -743,7 +760,8 @@
                 title: "Webinaire Fondation Florence _ Mr Raoul Salomon",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/939106593/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "50min",
-                type: "webinaire",
+                type: "clubs",
+                subtype: "club_nego",
                 description: "Raoul Salomon présente les marchés financiers et les carrières dans la banque d'investissement.",
                 tags: ["finance", "marchés", "banque"]
             },
@@ -752,7 +770,8 @@
                 title: "Webinaire metier _ Mr David Salabi - CAMBON PARTNERS",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/924510517/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "1h",
-                type: "webinaire",
+                type: "clubs",
+                subtype: "investclub",
                 description: "David Salabi présente le métier de banquier d'affaires et les fusions-acquisitions.",
                 tags: ["finance", "m&a", "conseil"]
             },
@@ -761,7 +780,8 @@
                 title: "Webinaire Psy Coaching - Paola Scemama - La Communication",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/939092290/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "40min",
-                type: "webinaire",
+                type: "evenements",
+                subtype: "eloquence",
                 description: "Paola Scemama aborde les techniques de communication efficace en milieu professionnel.",
                 tags: ["coaching", "communication", "soft skills"]
             },
@@ -770,7 +790,8 @@
                 title: "Webinaire RH - Albane Di Marco - Réussir son entretien",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/924510614/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "50min",
-                type: "webinaire",
+                type: "tutoriel",
+                subtype: "mentor",
                 description: "Conseils pratiques pour réussir ses entretiens d'embauche par Albane Di Marco.",
                 tags: ["rh", "entretien", "carrière"]
             },
@@ -779,7 +800,8 @@
                 title: "Webinaire Psy_Coaching - Le syndrome de l'imposteur",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/939092916/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "45min",
-                type: "webinaire",
+                type: "tutoriel",
+                subtype: "talent",
                 description: "Paola Scemama explique le syndrome de l'imposteur et comment le surmonter.",
                 tags: ["coaching", "psychologie", "développement personnel"]
             },
@@ -788,7 +810,8 @@
                 title: "Webinaire Paola Scemama — Neuropsychologue et coach",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/961291521/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "55min",
-                type: "webinaire",
+                type: "tutoriel",
+                subtype: "talent",
                 description: "Approche neuropsychologique du développement professionnel et personnel.",
                 tags: ["coaching", "psychologie", "neurosciences"]
             },
@@ -797,9 +820,81 @@
                 title: "Webinaire Fondation Florence Cédric Carles - Entrepreneuriat & Transition Energétique",
                 embedUrl: "https://vimeo.com/showcase/11236068/video/992029780/embed?hash=100338a5440cd6331f6c61e1b9159aefd6c0855b.1722959098",
                 duration: "1h10min",
-                type: "webinaire",
+                type: "evenements",
+                subtype: "soiree",
                 description: "Cédric Carles présente les opportunités d'entrepreneuriat dans la transition énergétique.",
                 tags: ["entrepreneuriat", "transition", "environnement"]
+            },
+            // Nouvelles vidéos ajoutées
+            {
+                id: 18,
+                title: "Club Gastronomique",
+                embedUrl: "https://player.vimeo.com/video/1057571258?badge=0&autopause=0&player_id=0&app_id=58479",
+                duration: "45min",
+                type: "evenements",
+                subtype: "soiree",
+                description: "Événement du Club Gastronomique de la Fondation Florence présentant des spécialités culinaires.",
+                tags: ["art-culture", "soirée", "gastronomie"]
+            },
+            {
+                id: 19,
+                title: "Exposition Origines",
+                embedUrl: "https://player.vimeo.com/video/1057568379?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479",
+                duration: "30min",
+                type: "evenements",
+                subtype: "soiree",
+                description: "Présentation de l'exposition 'Origines' organisée par la Fondation Florence.",
+                tags: ["art-culture", "exposition", "événement"]
+            },
+            {
+                id: 20,
+                title: "Film Antiracisme",
+                embedUrl: "https://player.vimeo.com/video/1057567291?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479",
+                duration: "25min",
+                type: "evenements",
+                subtype: "soiree",
+                description: "Film réalisé dans le cadre des initiatives contre le racisme et les discriminations.",
+                tags: ["société", "antiracisme", "art-culture"]
+            },
+            {
+                id: 21,
+                title: "École 100",
+                embedUrl: "https://player.vimeo.com/video/1057559485?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479",
+                duration: "20min",
+                type: "tutoriel",
+                subtype: "supra",
+                description: "Présentation des programmes de formation et des opportunités éducatives.",
+                tags: ["éducation", "formation", "école"]
+            },
+            {
+                id: 22,
+                title: "Talent 100",
+                embedUrl: "https://player.vimeo.com/video/1057505542?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479",
+                duration: "15min",
+                type: "tutoriel",
+                subtype: "talent",
+                description: "Programme de développement des talents de la Fondation Florence.",
+                tags: ["développement personnel", "carrière", "talent"]
+            },
+            {
+                id: 23,
+                title: "Mentors V2",
+                embedUrl: "https://player.vimeo.com/video/1057565997?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479",
+                duration: "35min",
+                type: "tutoriel",
+                subtype: "mentor",
+                description: "Présentation du programme de mentorat et de ses avantages pour les participants.",
+                tags: ["mentorat", "développement professionnel", "accompagnement"]
+            },
+            {
+                id: 24,
+                title: "Entreprise 100",
+                embedUrl: "https://player.vimeo.com/video/1057561289?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479",
+                duration: "40min",
+                type: "clubs",
+                subtype: "investclub",
+                description: "Présentation des partenariats entreprises et des opportunités professionnelles.",
+                tags: ["entreprise", "partenariat", "carrière"]
             }
         ];
 
@@ -1297,6 +1392,32 @@
             }
         ];
 
+        // Dictionnaire des sous-types par type
+        const videoSubtypes = {
+            "conferences": [
+                { value: "club_diplo", label: "Club Diplo" },
+                { value: "femmes_florence", label: "Femmes de Florence" },
+                { value: "pizzart", label: "Pizz'Art" },
+                { value: "webinaires", label: "Webinaires" }
+            ],
+            "evenements": [
+                { value: "soiree", label: "Soirée" },
+                { value: "sport", label: "Sport" },
+                { value: "eloquence", label: "Éloquence" }
+            ],
+            "clubs": [
+                { value: "investclub", label: "InvestClub" },
+                { value: "club_nego", label: "Club de Négo" },
+                { value: "stem_club", label: "Stem Club" },
+                { value: "club_cracks", label: "Club des cracks" }
+            ],
+            "tutoriel": [
+                { value: "talent", label: "Talent" },
+                { value: "mentor", label: "Mentor" },
+                { value: "supra", label: "Supra" }
+            ]
+        };
+        
         // Dictionnaire des sous-domaines par domaine
         const subdomains = {
             "droit": [
@@ -1324,7 +1445,7 @@
             const tagsHtml = video.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
             
             return `
-            <div class="content-card" data-type="${video.type}" data-tags="${video.tags.join(',')}">
+            <div class="content-card" data-type="${video.type}" data-subtype="${video.subtype}" data-tags="${video.tags.join(',')}">
                 <div class="card-media">
                     <iframe src="${video.embedUrl}" scrolling="no" allowfullscreen></iframe>
                 </div>
@@ -1332,20 +1453,34 @@
                     <h3 class="card-title">${video.title}</h3>
                     <div class="card-meta">
                         <span>Durée: ${video.duration}</span>
-                        <span>Type: ${video.type}</span>
+                        <span>Type: ${getTypeLabel(video.type)}</span>
+                        <span>Sous-type: ${getSubtypeLabel(video.type, video.subtype)}</span>
                     </div>
                     <p>${video.description}</p>
                     <div class="card-tags">
                         ${tagsHtml}
                     </div>
-                    <div class="card-actions">
-                        <div class="action-btn">❤️</div>
-                        <div class="action-btn">⏱️</div>
-                        <div class="action-btn">📋</div>
-                    </div>
                 </div>
             </div>
             `;
+        }
+        
+        // Fonction pour obtenir le libellé du type
+        function getTypeLabel(typeValue) {
+            const typeMap = {
+                "conferences": "Conférences & Webinaire",
+                "evenements": "Événements",
+                "clubs": "Clubs Pros",
+                "tutoriel": "Tutoriel"
+            };
+            return typeMap[typeValue] || typeValue;
+        }
+        
+        // Fonction pour obtenir le libellé du sous-type
+        function getSubtypeLabel(typeValue, subtypeValue) {
+            if (!videoSubtypes[typeValue]) return subtypeValue;
+            const subtype = videoSubtypes[typeValue].find(s => s.value === subtypeValue);
+            return subtype ? subtype.label : subtypeValue;
         }
 
         // Fonction pour créer un élément de document
@@ -1368,11 +1503,6 @@
                     <p>${doc.description}</p>
                     <div class="card-tags">
                         ${tagsHtml}
-                    </div>
-                    <div class="card-actions">
-                        <div class="action-btn">❤️</div>
-                        <div class="action-btn">⏱️</div>
-                        <div class="action-btn">📋</div>
                     </div>
                 </div>
             </div>
@@ -1397,11 +1527,6 @@
                     <p>${quiz.description}</p>
                     <div class="card-tags">
                         ${tagsHtml}
-                    </div>
-                    <div class="card-actions">
-                        <div class="action-btn">❤️</div>
-                        <div class="action-btn">⏱️</div>
-                        <div class="action-btn">📋</div>
                     </div>
                 </div>
             </div>
@@ -1541,6 +1666,25 @@
             });
         }
 
+        // Fonction pour mettre à jour les sous-types de vidéos en fonction du type sélectionné
+        function updateVideoSubtypes() {
+            // Cette fonction est désactivée car toutes les catégories sont maintenant affichées en permanence
+            // Le code reste ici pour référence ou utilisation future
+            /*
+            const typeSelect = document.getElementById('type-filter');
+            const subtypeSelect = document.getElementById('subtype-filter');
+            const selectedType = typeSelect.value;
+            
+            subtypeSelect.innerHTML = '<option value="">Catégorie</option>';
+            
+            if (selectedType && videoSubtypes[selectedType]) {
+                videoSubtypes[selectedType].forEach(sub => {
+                    subtypeSelect.innerHTML += `<option value="${sub.value}">${sub.label}</option>`;
+                });
+            }
+            */
+        }
+        
         // Fonction pour mettre à jour les sous-domaines en fonction du domaine sélectionné
         function updateSubdomains() {
             const domainSelect = document.getElementById('domain-booking');
@@ -1560,6 +1704,7 @@
         function filterVideos() {
             const searchTerm = document.getElementById('video-search').value.toLowerCase();
             const typeFilter = document.getElementById('type-filter').value;
+            const subtypeFilter = document.getElementById('subtype-filter').value;
             const durationFilter = document.getElementById('duration-filter').value;
             const tagFilter = document.getElementById('tag-filter').value;
             
@@ -1569,6 +1714,7 @@
                 const title = video.querySelector('.card-title').textContent.toLowerCase();
                 const description = video.querySelector('p').textContent.toLowerCase();
                 const videoType = video.getAttribute('data-type');
+                const videoSubtype = video.getAttribute('data-subtype');
                 const tags = video.getAttribute('data-tags').split(',');
                 
                 // Vérifier la correspondance avec la recherche
@@ -1580,6 +1726,9 @@
                 // Vérifier la correspondance avec le type
                 const matchesType = !typeFilter || videoType === typeFilter;
                 
+                // Vérifier la correspondance avec le sous-type
+                const matchesSubtype = !subtypeFilter || videoSubtype === subtypeFilter;
+                
                 // Vérifier la correspondance avec le tag
                 const matchesTag = !tagFilter || tags.includes(tagFilter);
                 
@@ -1587,7 +1736,7 @@
                 const matchesDuration = !durationFilter || true; // À compléter avec la logique de durée
                 
                 // Afficher ou masquer la vidéo
-                if (matchesSearch && matchesType && matchesTag && matchesDuration) {
+                if (matchesSearch && matchesType && matchesSubtype && matchesTag && matchesDuration) {
                     video.style.display = 'block';
                 } else {
                     video.style.display = 'none';
@@ -1825,6 +1974,7 @@
             // Filtres vidéothèque
             document.getElementById('video-search').addEventListener('input', filterVideos);
             document.getElementById('type-filter').addEventListener('change', filterVideos);
+            document.getElementById('subtype-filter').addEventListener('change', filterVideos);
             document.getElementById('duration-filter').addEventListener('change', filterVideos);
             document.getElementById('tag-filter').addEventListener('change', filterVideos);
             
