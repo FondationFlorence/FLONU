@@ -414,42 +414,42 @@
         }
 
         /* Entretiens blancs */
-        .booking-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 2rem;
+        .cas-content {
+            margin-top: 1.5rem;
+            border-top: 1px solid var(--light-gray);
+            padding-top: 1rem;
         }
         
-        .booking-card {
-            background-color: var(--white);
-            border-radius: 8px;
+        .cas-enonce {
+            margin-bottom: 1.5rem;
+        }
+        
+        .cas-solution {
+            margin-top: 1.5rem;
             padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            background-color: rgba(47, 128, 237, 0.05);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 0 4px 4px 0;
         }
         
-        .booking-title {
-            font-size: 1.1rem;
+        .cas-solution h4 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        
+        .cas-solution h5 {
+            margin-top: 1.2rem;
             margin-bottom: 0.5rem;
-            color: var(--black);
         }
         
-        .booking-meta {
-            color: var(--secondary-color);
+        .cas-solution ul, .cas-solution ol {
+            margin-top: 0.5rem;
             margin-bottom: 1rem;
-            font-size: 0.9rem;
+            padding-left: 1.5rem;
         }
         
-        .booking-btn {
-            display: block;
-            width: 100%;
-            padding: 0.8rem 0;
-            background-color: var(--primary-color);
-            color: var(--white);
-            border: none;
-            border-radius: 4px;
-            text-align: center;
-            text-decoration: none;
-            margin-top: 1rem;
+        .toggle-solution {
+            cursor: pointer;
         }
 
         /* Contenu caché par défaut */
@@ -555,7 +555,6 @@
                 <button class="tertiary-tab" data-tab="quiz">Quiz</button>
                 <button class="tertiary-tab" data-tab="cas">Cas pratiques</button>
                 <button class="tertiary-tab" data-tab="ressources-entretiens">Préparer son entretien</button>
-                <button class="tertiary-tab" data-tab="entretiens-blancs">Entretien blanc</button>
             </div>
             
             <!-- Fiches de révision -->
@@ -614,25 +613,7 @@
                 </div>
             </div>
             
-            <!-- Entretiens blancs -->
-            <div id="entretiens-blancs" class="tertiary-content" style="display:none">
-                <div class="search-container">
-                    <select class="filter-dropdown" style="width:49%; display:inline-block" id="domain-booking">
-                        <option value="">Sélectionner un domaine</option>
-                        <option value="droit">Droit</option>
-                        <option value="finance">Finance de Marché</option>
-                        <option value="consulting">Consulting</option>
-                    </select>
-                    <select class="filter-dropdown" style="width:49%; display:inline-block" id="subdomain-booking">
-                        <option value="">Sélectionner un sous-domaine</option>
-                        <!-- Options chargées dynamiquement en fonction du domaine sélectionné -->
-                    </select>
-                </div>
-                
-                <div class="booking-container" id="booking-grid">
-                    <!-- Les disponibilités pour les entretiens blancs seront générées ici par JavaScript -->
-                </div>
-            </div>
+
         </div>
     </div>
 
@@ -998,6 +979,71 @@
                 fileUrl: "https://example.com/documents/cas-transformation.pdf",
                 description: "Cas pratique sur la transformation digitale d'une entreprise traditionnelle.",
                 tags: ["consulting", "digital", "transformation"]
+            },
+            {
+                id: 7,
+                title: "Cas pratique BCG - Amélioration de la rentabilité d'un groupe de supermarchés",
+                type: "interactive",
+                domain: "consulting",
+                description: "Cas d'entretien utilisé au BCG Paris portant sur l'analyse et l'amélioration de la rentabilité d'un réseau de supermarchés.",
+                tags: ["consulting", "stratégie", "retail"],
+                enonce: "Votre client est un groupe de supermarchés. Le groupe dispose de 200 magasins répartis sur le territoire sans biais particulier. Le supermarché type dispose d'une surface de 2000m² et se trouve généralement dans des zones péri-urbaines : accès plutôt en voiture ou en marchant, petit parking devant le magasin, devantures limitées. Le client a besoin de vous pour comprendre l'érosion de la rentabilité du réseau et de construire un plan d'amélioration. Le chiffre d'affaires est de 2Bn€ avec une rentabilité (EBITDA) de 5% ce qui est inférieur aux concurrents qui parviennent pour certains à atteindre 10%.",
+                solution: `<h4>Solution indicative</h4>
+                <h5>a) Comprendre la décomposition du P&L</h5>
+                <p>Les principaux postes de coûts pour un supermarché sont :</p>
+                <ul>
+                    <li>Achats : constituent le gros du P&L, avec des marges brutes très basses (environ 20%)</li>
+                    <li>Frais de personnel</li>
+                    <li>Loyers</li>
+                    <li>Consommations d'électricité (réfrigérateurs)</li>
+                    <li>"Casse" : un poste important comprenant la casse des denrées pendant les mises en magasin, les articles périmés et le vol, pouvant représenter jusqu'à 2% du CA</li>
+                </ul>
+                
+                <h5>b) Dimensionnement des frais de personnel</h5>
+                <p>Pour un supermarché standard :</p>
+                <ul>
+                    <li>CA = 10M€ (2Bn€ / 200 magasins)</li>
+                    <li>Superficie : 2000m²</li>
+                    <li>Personnel : 1 manager (6k€/mois avec charges), 1 comptable (4k€/mois avec charges), 12 personnes en magasin dont 5-6 caissiers (3k€/mois avec charges)</li>
+                    <li>Total mensuel : 46k€ → environ 550k€ par an</li>
+                    <li>Soit 5,5% du CA</li>
+                </ul>
+                
+                <h5>c) Structure simplifiée des coûts et axes d'amélioration</h5>
+                <p>Structure actuelle :</p>
+                <ul>
+                    <li>Achats : 80%</li>
+                    <li>Frais de personnel : 5%</li>
+                    <li>Autres charges : 8%</li>
+                    <li>Casse : 2%</li>
+                    <li>EBITDA : 5%</li>
+                </ul>
+                
+                <p>Axes d'amélioration prioritaires :</p>
+                <ol>
+                    <li><strong>Optimisation des frais de personnel</strong> : revoir la couverture des horaires (fermer une caisse le matin, créer des profils volants)</li>
+                    <li><strong>Réduction de la casse</strong> : analyser les sources et prendre des mesures ciblées (baguage des produits contre le vol, meilleure gestion des stocks)</li>
+                    <li><strong>Augmentation du CA</strong> : 
+                        <ul>
+                            <li>Ajustement des prix (possible si amélioration des surfaces)</li>
+                            <li>Optimisation du parcours client pour augmenter le panier moyen</li>
+                            <li>Meilleure stratégie promotionnelle pour augmenter le trafic</li>
+                        </ul>
+                    </li>
+                </ol>
+                
+                <h5>d) Impact d'une augmentation de 10% du CA sur la marge</h5>
+                <p>Calcul :</p>
+                <ul>
+                    <li>CA initial : 100 → CA final : 110</li>
+                    <li>Marge brute initiale : 20 → Marge brute finale : 22</li>
+                    <li>Frais fixes : 15 (inchangés)</li>
+                    <li>EBITDA initial : 5 → EBITDA final : 7</li>
+                    <li>En % du CA : 5% → 6,36%</li>
+                </ul>
+                
+                <h5>e) Conclusion</h5>
+                <p>Notre analyse du réseau de supermarchés montre un écart significatif de rentabilité par rapport aux concurrents (5% vs jusqu'à 10% d'EBITDA). Nos recommandations se concentrent sur trois axes : l'optimisation des ressources humaines pour mieux couvrir les pics d'activité, la réduction de la casse pour économiser jusqu'à 2% du CA, et une stratégie commerciale revue pour augmenter le chiffre d'affaires au m². Une augmentation de 10% du CA permettrait d'améliorer l'EBITDA de 5% à plus de 6%, réduisant ainsi l'écart avec les concurrents. La prochaine étape consisterait à quantifier plus précisément les bénéfices de chaque levier et à les prioriser selon leur facilité de mise en œuvre et leur impact.</p>`
             }
         ];
 
@@ -1239,85 +1285,14 @@
             }
         ];
 
-        // Données des entretiens blancs (simulées)
-        const bookingData = [
-            {
-                id: 1,
-                title: "Entretien Droit des affaires",
-                domain: "droit",
-                subdomain: "affaires",
-                mentor: "Me Jean Dupont",
-                date: "15/03/2025",
-                slots: ["10:00", "14:00", "16:30"]
-            },
-            {
-                id: 2,
-                title: "Entretien Droit social",
-                domain: "droit",
-                subdomain: "social",
-                mentor: "Me Sophie Martin",
-                date: "18/03/2025",
-                slots: ["11:00", "15:30"]
-            },
-            {
-                id: 3,
-                title: "Entretien Finance de marché - Trading",
-                domain: "finance",
-                subdomain: "trading",
-                mentor: "Thomas Leclerc",
-                date: "16/03/2025",
-                slots: ["09:30", "13:00", "17:00"]
-            },
-            {
-                id: 4,
-                title: "Entretien Finance de marché - M&A",
-                domain: "finance",
-                subdomain: "m&a",
-                mentor: "Laura Blanc",
-                date: "19/03/2025",
-                slots: ["10:30", "14:30"]
-            },
-            {
-                id: 5,
-                title: "Entretien Consulting - Stratégie",
-                domain: "consulting",
-                subdomain: "strategie",
-                mentor: "Paul Dubois",
-                date: "17/03/2025",
-                slots: ["09:00", "13:30", "16:00"]
-            },
-            {
-                id: 6,
-                title: "Entretien Consulting - Opérations",
-                domain: "consulting",
-                subdomain: "operations",
-                mentor: "Marie Petit",
-                date: "20/03/2025",
-                slots: ["11:30", "15:00"]
+        // Fonction pour mélanger un tableau (algorithme de Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
-        ];
-
-        // Dictionnaire des sous-domaines par domaine
-        const subdomains = {
-            "droit": [
-                { value: "affaires", label: "Droit des affaires" },
-                { value: "social", label: "Droit social" },
-                { value: "fiscal", label: "Droit fiscal" },
-                { value: "propriete", label: "Propriété intellectuelle" }
-            ],
-            "finance": [
-                { value: "trading", label: "Trading" },
-                { value: "m&a", label: "Fusions & Acquisitions" },
-                { value: "investment", label: "Investment Banking" },
-                { value: "asset", label: "Asset Management" }
-            ],
-            "consulting": [
-                { value: "strategie", label: "Stratégie" },
-                { value: "operations", label: "Opérations" },
-                { value: "digital", label: "Transformation digitale" },
-                { value: "finance", label: "Finance" }
-            ]
-        };
+            return array;
+        }
 
         // Fonction pour créer un élément de vidéo
         function createVideoElement(video) {
@@ -1338,11 +1313,7 @@
                     <div class="card-tags">
                         ${tagsHtml}
                     </div>
-                    <div class="card-actions">
-                        <div class="action-btn">❤️</div>
-                        <div class="action-btn">⏱️</div>
-                        <div class="action-btn">📋</div>
-                    </div>
+
                 </div>
             </div>
             `;
@@ -1353,6 +1324,34 @@
             const tagsHtml = doc.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
             const durationHtml = doc.duration ? `<span>Durée de lecture: ${doc.duration}</span>` : '';
             const domainHtml = doc.domain ? `<span>Domaine: ${doc.domain}</span>` : '';
+            
+            // Cas spécial pour les cas interactifs
+            if (doc.type === "interactive") {
+                return `
+                <div class="content-card" data-type="${doc.type}" data-category="${doc.category || ''}" data-domain="${doc.domain || ''}" data-tags="${doc.tags.join(',')}">
+                    <div class="card-info">
+                        <h3 class="card-title">${doc.title}</h3>
+                        <div class="card-meta">
+                            ${domainHtml}
+                        </div>
+                        <p>${doc.description}</p>
+                        <div class="card-tags">
+                            ${tagsHtml}
+                        </div>
+                        <div class="cas-content">
+                            <div class="cas-enonce">
+                                <h4>Énoncé du cas</h4>
+                                <p>${doc.enonce}</p>
+                            </div>
+                            <button class="quiz-btn toggle-solution" data-cas-id="${doc.id}">Afficher la solution indicative</button>
+                            <div class="cas-solution" id="solution-${doc.id}" style="display:none;">
+                                ${doc.solution}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
             
             return `
             <div class="content-card" data-type="${doc.type}" data-category="${doc.category || ''}" data-domain="${doc.domain || ''}" data-tags="${doc.tags.join(',')}">
@@ -1368,11 +1367,6 @@
                     <p>${doc.description}</p>
                     <div class="card-tags">
                         ${tagsHtml}
-                    </div>
-                    <div class="card-actions">
-                        <div class="action-btn">❤️</div>
-                        <div class="action-btn">⏱️</div>
-                        <div class="action-btn">📋</div>
                     </div>
                 </div>
             </div>
@@ -1398,34 +1392,12 @@
                     <div class="card-tags">
                         ${tagsHtml}
                     </div>
-                    <div class="card-actions">
-                        <div class="action-btn">❤️</div>
-                        <div class="action-btn">⏱️</div>
-                        <div class="action-btn">📋</div>
-                    </div>
                 </div>
             </div>
             `;
         }
 
-        // Fonction pour créer un élément de réservation d'entretien
-        function createBookingElement(booking) {
-            const slotsHtml = booking.slots.map(slot => `
-                <a href="#" class="booking-btn" data-booking-id="${booking.id}" data-slot="${slot}">Réserver à ${slot}</a>
-            `).join('');
-            
-            return `
-            <div class="booking-card" data-domain="${booking.domain}" data-subdomain="${booking.subdomain}">
-                <h3 class="booking-title">${booking.title}</h3>
-                <div class="booking-meta">
-                    <p>Mentor: ${booking.mentor}</p>
-                    <p>Date: ${booking.date}</p>
-                </div>
-                <p>Choisissez un créneau horaire:</p>
-                ${slotsHtml}
-            </div>
-            `;
-        }
+
 
         // Fonction pour générer un quiz actif
         function generateActiveQuiz(quizId) {
@@ -1434,12 +1406,22 @@
             
             let questionsHtml = '';
             quiz.questions.forEach((q, index) => {
+                // Créer un tableau avec les options et leur index
+                let optionsWithIndex = q.options.map((option, idx) => ({
+                    text: option,
+                    originalIndex: idx
+                }));
+                
+                // Mélanger les options
+                optionsWithIndex = shuffleArray(optionsWithIndex);
+                
+                // Générer le HTML pour les options
                 let optionsHtml = '';
-                q.options.forEach((option, optIndex) => {
+                optionsWithIndex.forEach((option, shuffledIndex) => {
                     optionsHtml += `
-                    <div class="answer-option" data-index="${optIndex}">
-                        <input type="radio" name="question-${index}" id="q${index}-opt${optIndex}">
-                        <label for="q${index}-opt${optIndex}">${option}</label>
+                    <div class="answer-option" data-index="${option.originalIndex}">
+                        <input type="radio" name="question-${index}" id="q${index}-opt${shuffledIndex}">
+                        <label for="q${index}-opt${shuffledIndex}">${option.text}</label>
                     </div>
                     `;
                 });
@@ -1531,30 +1513,9 @@
             });
         }
 
-        // Fonction pour initialiser les entretiens blancs
-        function initEntretiensBlancs() {
-            const bookingGrid = document.getElementById('booking-grid');
-            bookingGrid.innerHTML = '';
-            
-            bookingData.forEach(booking => {
-                bookingGrid.innerHTML += createBookingElement(booking);
-            });
-        }
 
-        // Fonction pour mettre à jour les sous-domaines en fonction du domaine sélectionné
-        function updateSubdomains() {
-            const domainSelect = document.getElementById('domain-booking');
-            const subdomainSelect = document.getElementById('subdomain-booking');
-            const selectedDomain = domainSelect.value;
-            
-            subdomainSelect.innerHTML = '<option value="">Sélectionner un sous-domaine</option>';
-            
-            if (selectedDomain && subdomains[selectedDomain]) {
-                subdomains[selectedDomain].forEach(sub => {
-                    subdomainSelect.innerHTML += `<option value="${sub.value}">${sub.label}</option>`;
-                });
-            }
-        }
+
+
 
         // Fonction pour filtrer les vidéos
         function filterVideos() {
@@ -1750,31 +1711,7 @@
             });
         }
 
-        // Fonction pour filtrer les entretiens blancs
-        function filterEntretiensBlancs() {
-            const domainFilter = document.getElementById('domain-booking').value;
-            const subdomainFilter = document.getElementById('subdomain-booking').value;
-            
-            const bookings = document.querySelectorAll('#booking-grid .booking-card');
-            
-            bookings.forEach(booking => {
-                const domain = booking.getAttribute('data-domain');
-                const subdomain = booking.getAttribute('data-subdomain');
-                
-                // Vérifier la correspondance avec le domaine
-                const matchesDomain = !domainFilter || domain === domainFilter;
-                
-                // Vérifier la correspondance avec le sous-domaine
-                const matchesSubdomain = !subdomainFilter || subdomain === subdomainFilter;
-                
-                // Afficher ou masquer l'entretien
-                if (matchesDomain && matchesSubdomain) {
-                    booking.style.display = 'block';
-                } else {
-                    booking.style.display = 'none';
-                }
-            });
-        }
+
 
         // Fonction pour initialiser tous les éléments
         function initAll() {
@@ -1784,7 +1721,7 @@
             initCas();
             initEntretienRessources();
             initQuiz();
-            initEntretiensBlancs();
+
             
             // Attacher les événements
             attachEvents();
@@ -1919,18 +1856,7 @@
                 }
             });
             
-            // Réservation d'entretien
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('booking-btn')) {
-                    e.preventDefault();
-                    const bookingId = e.target.getAttribute('data-booking-id');
-                    const slot = e.target.getAttribute('data-slot');
-                    alert(`Entretien réservé avec succès pour le créneau de ${slot}. Un email de confirmation vous sera envoyé.`);
-                    e.target.textContent = 'Réservé';
-                    e.target.classList.add('disabled');
-                    e.target.disabled = true;
-                }
-            });
+
         }
         
         // Fonction pour valider un quiz
