@@ -1963,12 +1963,20 @@
                         // Ouvrir la visionneuse de document
                         const fileUrl = preview.getAttribute('data-url');
                         const title = preview.closest('.content-card').querySelector('.card-title').textContent;
-                        
+    
                         document.querySelector('.document-viewer .viewer-title').textContent = title;
-                        document.querySelector('.document-frame').src = fileUrl;
-                        document.querySelector('.document-content').style.display = 'none';
-                        document.querySelector('.document-frame').style.display = 'block';
-                        document.querySelector('.document-viewer').classList.add('active');
+    
+                        // Modifier l'URL pour désactiver le téléchargement si c'est un PDF
+                        let displayUrl = fileUrl;
+                        if (fileUrl.toLowerCase().endsWith('.pdf')) {
+                        // Ajouter uniquement le paramètre #toolbar=0 pour masquer la barre d'outils qui contient le bouton de téléchargement
+                            displayUrl = fileUrl + '#toolbar=0';
+                    }
+    
+                         document.querySelector('.document-frame').src = displayUrl;
+                         document.querySelector('.document-content').style.display = 'none';
+                         document.querySelector('.document-frame').style.display = 'block';
+                         document.querySelector('.document-viewer').classList.add('active');
                     }
                 }
             });
