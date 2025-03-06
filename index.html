@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fondation Florence</title>
     <style>
+
+/* MODIFICATIONS POUR LES MINIATURES */
+.card-media {
+  position: relative;
+  width: 100%;
+  height: 200px; /* Hauteur fixe pour toutes les miniatures */
+  overflow: hidden; /* Cache les parties débordantes */
+}
+
+.document-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* L'image remplit le conteneur sans déformation */
+  object-position: center; /* Centre l'image */
+}
+
+.default-icon {
+  object-fit: contain; /* Pour les icônes SVG */
+  padding: 15%; /* Espace autour de l'icône */
+}
+
         /* Variables et réinitialisation CSS */
         :root {
             --primary-color: #2F80ED;
@@ -183,11 +204,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
         
-        .card-media {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%; /* Ratio 16:9 */
-        }
+     
         
         .card-media iframe, .card-media .document-preview {
             position: absolute;
@@ -2097,3 +2114,4 @@ const title = cas.querySelector('.card-title').textContent.toLowerCase();
     </script>
 </body>
 </html>
+
