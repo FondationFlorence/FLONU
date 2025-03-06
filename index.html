@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -406,6 +407,23 @@
             border: none;
             display: none;
         }
+
+/* Styles supplémentaires pour cacher la barre transparente des PDF */
+.document-frame {
+    flex: 1;
+    border: none;
+    display: none;
+}
+
+/* Ces styles servent à masquer les éléments non désirés dans le lecteur PDF */
+.document-viewer::part(toolbar) {
+    display: none !important;
+}
+
+.document-viewer iframe {
+    /* Empêche l'affichage des éléments natifs du lecteur PDF */
+    pointer-events: auto;
+}
 
         /* Ajout de styles spécifiques pour les miniatures */
         .custom-thumbnail {
@@ -1967,12 +1985,13 @@
     
                         document.querySelector('.document-viewer .viewer-title').textContent = title;
     
-                        // Modifier l'URL pour désactiver le téléchargement si c'est un PDF
-                        let displayUrl = fileUrl;
-                        if (fileUrl.toLowerCase().endsWith('.pdf')) {
-                        // Ajouter uniquement le paramètre #toolbar=0 pour masquer la barre d'outils qui contient le bouton de téléchargement
-                            displayUrl = fileUrl + '#toolbar=0';
-                    }
+                    // Modifier l'URL pour désactiver le téléchargement si c'est un PDF
+let displayUrl = fileUrl;
+if (fileUrl.toLowerCase().endsWith('.pdf')) {
+    // Paramètres complets pour masquer la barre transparente et le bouton de téléchargement
+    displayUrl = fileUrl + '#toolbar=0&navpanes=1&statusbar=0&view=FitH&printmenu=0&disablefilename=1';
+}
+
     
                          document.querySelector('.document-frame').src = displayUrl;
                          document.querySelector('.document-content').style.display = 'none';
@@ -2077,3 +2096,5 @@
     </script>
 </body>
 </html>
+
+
