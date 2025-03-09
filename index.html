@@ -516,6 +516,47 @@ header {
 </style>
   <!-- Ajoutez ce script pour PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.2.8/pdfobject.min.js"></script>
+<style>
+/* Styles pour l'affichage des PDFs */
+.pdf-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.pdfobject-container {
+  height: 100%;
+  width: 100%;
+}
+
+.pdfobject {
+  border: none;
+  width: 100%;
+  height: 100%;
+}
+
+.pdf-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  background: transparent;
+}
+
+/* Modification des styles du visualiseur */
+.document-content {
+  padding: 0;
+  flex: 1;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  height: calc(100% - 60px);
+  position: relative;
+}
+</style>
 </head>
 <body>
 <!-- Sous-navigation -->
@@ -2008,8 +2049,113 @@ document.getElementById('entretien-search').addEventListener('input', filterEntr
 
 // Prévisualisation des documents
 document.addEventListener('click', function(e) {
-if (e.target.closest('.document-preview')) {
-const preview = e.target.closest('.document-preview');
+  if (e.target.closest('.document-preview')) {
+    const preview = e.target.closest('.document-preview');
+
+    // Vérifier s'il s'agit d'un quiz
+    if (preview.hasAttribute('data-quiz-id')) {
+      const quizId = parseInt(preview.getAttribute('data-quiz-id'));
+      document.getElementById('quiz-list').style.display = 'none';
+      document.getElementById('active-quiz').style.display = 'block';
+      document.getElementById('active-quiz').innerHTML = generateActiveQuiz(quizId);
+
+      // Attacher les événements du quiz
+      document.getElementById('back-to-quizzes').addEventListener('click', function() {
+        document.getElementById('quiz-list').style.display = 'block';
+        document.getElementById('active-quiz').style.display = 'none';
+      });
+
+      document.getElementById('validate-quiz').addEventListener('click', function() {
+        validateQuiz();
+      });
+
+      // Attacher les événements de sélection des réponses
+      document.querySelectorAll('.answer-option').forEach(option => {
+        option.addEventListener('click', function() {
+          const question = this.closest('.quiz-question');
+          question.querySelectorAll('.answer-option').forEach(opt => opt.classList.remove('selected'));
+          this.classList.add('selected');
+        });
+      });
+    } else if (preview.hasAttribute('data-inline')) {
+      // Traiter le contenu inline
+      const contentId = preview.getAttribute('data-content-id');
+      const docItem = casData.find(item => item.id == contentId);
+
+      if (docItem) {
+        const title = docItem.title;
+        const content = docItem.content;
+
+        document.querySelector('.document-viewer .viewer-title').textContent = title;
+        document.querySelector('.document-content').innerHTML = content;
+        document.querySelector('.document-content').style.display = 'block';
+        document.querySelector('.document-frame').style.display = 'none';
+        document.querySelector('.document-frame-container').style.display = 'none';
+        document.querySelector('.document-viewer').classList.add('active');
+
+        // Initialiser le bouton toggle pour la solution (s'il existe)
+        setTimeout(function() {
+          const toggleButton = document.getElementById('toggleSolution');
+          if (toggleButton) {
+            toggleButton.addEventListener('click', function() {
+              const solutionContent = document.getElementById('solutionContent');
+              if (solutionContent.style.display === 'none') {
+                solutionContent.style.display = 'block';
+                toggleButton.textContent = 'Masquer la solution indicative';
+              } else {
+                solutionContent.style.display = 'none';
+                toggleButton.textContent = 'Afficher la solution indicative';
+              }
+            });
+          }
+        }, 100);
+      }
+    } else {
+      // Ouvrir la visionneuse de document
+      const fileUrl = preview.getAttribute('data-url');
+      const title = preview.closest('.content-card').querySelector('.card-title').textContent;
+
+      document.querySelector('.document-viewer .viewer-title').textContent = title;
+
+      // Vérifier si c'est un PDF
+      if (fileUrl && fileUrl.toLowerCase().endsWith('.pdf')) {
+        // Utiliser PDFObject pour afficher le PDF
+        document.querySelector('.document-frame').style.display = 'none';
+        document.querySelector('.document-frame-container').style.display = 'none';
+        
+        // S'assurer que le contenu est visible et a une hauteur correcte
+        document.querySelector('.document-content').style.display = 'block';
+        document.querySelector('.document-content').innerHTML = '<div class="pdf-container"></div><div class="pdf-overlay"></div>';
+        
+        // Intégrer le PDF
+        PDFObject.embed(fileUrl, document.querySelector('.pdf-container'), {
+          pdfOpenParams: {
+            navpanes: 0,
+            toolbar: 0,
+            statusbar: 0,
+            view: 'FitH'
+          }
+        });
+        
+        // Désactiver le menu contextuel sur l'overlay
+        setTimeout(function() {
+          document.querySelector('.pdf-overlay').addEventListener('contextmenu', function(ev) {
+            ev.preventDefault();
+            return false;
+          });
+        }, 100);
+      } else {
+        // Pour les fichiers non-PDF, utiliser l'iframe standard
+        document.querySelector('.document-frame').src = fileUrl || '';
+        document.querySelector('.document-content').style.display = 'none';
+        document.querySelector('.document-frame-container').style.display = 'block';
+        document.querySelector('.document-frame').style.display = 'block';
+      }
+      
+      document.querySelector('.document-viewer').classList.add('active');
+    }
+  }
+});
 
 // Vérifier s'il s'agit d'un quiz
 if (preview.hasAttribute('data-quiz-id')) {
@@ -2095,7 +2241,9 @@ document.querySelector('.document-viewer').classList.add('active');
 document.querySelector('.close-viewer').addEventListener('click', function() {
   document.querySelector('.document-viewer').classList.remove('active');
   document.querySelector('.document-frame').src = '';
+  document.querySelector('.document-content').innerHTML = '';
   document.querySelector('.document-frame-container').style.display = 'none';
+  document.querySelector('.document-content').style.display = 'none';
 });
 
 // Validation du quiz
