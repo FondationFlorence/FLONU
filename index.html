@@ -447,29 +447,6 @@ header {
   cursor: pointer;
 }
 
-
-.document-frame {
-  flex: 1;
-  border: none;
-  display: none;
-  pointer-events: auto;
-}
-  .document-frame-container {
-  position: relative;
-  flex: 1;
-  display: none;
-}
-
-.frame-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 10;
-  background: transparent;
-}
-
 .document-content {
   padding: 2rem;
   background-color: var(--white);
@@ -479,7 +456,14 @@ header {
   font-size: 1.1rem;
   display: none;
 }
-  
+
+.document-frame {
+  flex: 1;
+  border: none;
+  display: none;
+  pointer-events: auto;
+}
+
 /* Empêcher le clic droit sur l'iframe */
 .document-viewer {
   -webkit-user-select: none;
@@ -512,49 +496,6 @@ header {
 
 .tab-content.active {
   display: block;
-}
-</style>
-  <!-- Ajoutez ce script pour PDF.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.2.8/pdfobject.min.js"></script>
-<style>
-/* Styles pour l'affichage des PDFs */
-.pdf-container {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
-.pdfobject-container {
-  height: 100%;
-  width: 100%;
-}
-
-.pdfobject {
-  border: none;
-  width: 100%;
-  height: 100%;
-}
-
-.pdf-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 10;
-  background: transparent;
-}
-
-/* Modification des styles du visualiseur */
-.document-content {
-  padding: 0;
-  flex: 1;
-  overflow: hidden;
-  background-color: #f5f5f5;
-  height: calc(100% - 60px);
-  position: relative;
 }
 </style>
 </head>
@@ -737,15 +678,11 @@ header {
 
 <!-- Document Viewer -->
 <div class="document-viewer">
-  <div class="viewer-header">
-    <div class="viewer-title">Document Title</div>
-    <div class="close-viewer">✕</div>
-  </div>
-  <div class="document-frame-container">
-    <iframe class="document-frame" src=""></iframe>
-    <div class="frame-overlay"></div>
-  </div>
-  <div class="document-content"></div>
+<div class="viewer-header">
+<div class="viewer-title">Document Title</div>
+<div class="close-viewer">✕</div>
+</div>
+<iframe class="document-frame" src=""></iframe>
 </div>
 
 <script>
@@ -2032,10 +1969,10 @@ filterRessources();
 // Filtres fiches de révision
 document.getElementById('revision-search').addEventListener('input', filterRevisions);
 document.getElementById('domain-select').addEventListener('change', function() {
-  filterRevisions();
-  filterQuizzes();
-  filterCas();
-  filterEntretienRessources();
+filterRevisions();
+filterQuizzes();
+filterCas();
+filterEntretienRessources();
 });
 
 // Filtres quiz
@@ -2049,207 +1986,179 @@ document.getElementById('entretien-search').addEventListener('input', filterEntr
 
 // Prévisualisation des documents
 document.addEventListener('click', function(e) {
-  if (e.target.closest('.document-preview')) {
-    const preview = e.target.closest('.document-preview');
+if (e.target.closest('.document-preview')) {
+const preview = e.target.closest('.document-preview');
 
-    // Vérifier s'il s'agit d'un quiz
-    if (preview.hasAttribute('data-quiz-id')) {
-      const quizId = parseInt(preview.getAttribute('data-quiz-id'));
-      document.getElementById('quiz-list').style.display = 'none';
-      document.getElementById('active-quiz').style.display = 'block';
-      document.getElementById('active-quiz').innerHTML = generateActiveQuiz(quizId);
+// Vérifier s'il s'agit d'un quiz
+if (preview.hasAttribute('data-quiz-id')) {
+const quizId = parseInt(preview.getAttribute('data-quiz-id'));
+document.getElementById('quiz-list').style.display = 'none';
+document.getElementById('active-quiz').style.display = 'block';
+document.getElementById('active-quiz').innerHTML = generateActiveQuiz(quizId);
 
-      // Attacher les événements du quiz
-      document.getElementById('back-to-quizzes').addEventListener('click', function() {
-        document.getElementById('quiz-list').style.display = 'block';
-        document.getElementById('active-quiz').style.display = 'none';
-      });
+// Attacher les événements du quiz
+document.getElementById('back-to-quizzes').addEventListener('click', function() {
+document.getElementById('quiz-list').style.display = 'block';
+document.getElementById('active-quiz').style.display = 'none';
+});
 
-      document.getElementById('validate-quiz').addEventListener('click', function() {
-        validateQuiz();
-      });
+document.getElementById('validate-quiz').addEventListener('click', function() {
+validateQuiz();
+});
 
-      // Attacher les événements de sélection des réponses
-      document.querySelectorAll('.answer-option').forEach(option => {
-        option.addEventListener('click', function() {
-          const question = this.closest('.quiz-question');
-          question.querySelectorAll('.answer-option').forEach(opt => opt.classList.remove('selected'));
-          this.classList.add('selected');
-        });
-      });
-    } else if (preview.hasAttribute('data-inline')) {
-      // Traiter le contenu inline
-      const contentId = preview.getAttribute('data-content-id');
-      const docItem = casData.find(item => item.id == contentId);
+// Attacher les événements de sélection des réponses
+document.querySelectorAll('.answer-option').forEach(option => {
+option.addEventListener('click', function() {
+const question = this.closest('.quiz-question');
+question.querySelectorAll('.answer-option').forEach(opt => opt.classList.remove('selected'));
+this.classList.add('selected');
+});
+});
+} else if (preview.hasAttribute('data-inline')) {
+// Traiter le contenu inline
+const contentId = preview.getAttribute('data-content-id');
+const docItem = casData.find(item => item.id == contentId);
 
-      if (docItem) {
-        const title = docItem.title;
-        const content = docItem.content;
+if (docItem) {
+const title = docItem.title;
+const content = docItem.content;
 
-        document.querySelector('.document-viewer .viewer-title').textContent = title;
-        document.querySelector('.document-content').innerHTML = content;
-        document.querySelector('.document-content').style.display = 'block';
-        document.querySelector('.document-frame').style.display = 'none';
-        document.querySelector('.document-frame-container').style.display = 'none';
-        document.querySelector('.document-viewer').classList.add('active');
+document.querySelector('.document-viewer .viewer-title').textContent = title;
+document.querySelector('.document-content').innerHTML = content;
+document.querySelector('.document-content').style.display = 'block';
+document.querySelector('.document-frame').style.display = 'none';
+document.querySelector('.document-viewer').classList.add('active');
 
-        // Initialiser le bouton toggle pour la solution (s'il existe)
-        setTimeout(function() {
-          const toggleButton = document.getElementById('toggleSolution');
-          if (toggleButton) {
-            toggleButton.addEventListener('click', function() {
-              const solutionContent = document.getElementById('solutionContent');
-              if (solutionContent.style.display === 'none') {
-                solutionContent.style.display = 'block';
-                toggleButton.textContent = 'Masquer la solution indicative';
-              } else {
-                solutionContent.style.display = 'none';
-                toggleButton.textContent = 'Afficher la solution indicative';
-              }
-            });
-          }
-        }, 100);
-      }
-    } else {
-      // Ouvrir la visionneuse de document
-      const fileUrl = preview.getAttribute('data-url');
-      const title = preview.closest('.content-card').querySelector('.card-title').textContent;
+// Initialiser le bouton toggle pour la solution (s'il existe)
+setTimeout(function() {
+const toggleButton = document.getElementById('toggleSolution');
+if (toggleButton) {
+toggleButton.addEventListener('click', function() {
+const solutionContent = document.getElementById('solutionContent');
+if (solutionContent.style.display === 'none') {
+solutionContent.style.display = 'block';
+toggleButton.textContent = 'Masquer la solution indicative';
+} else {
+solutionContent.style.display = 'none';
+toggleButton.textContent = 'Afficher la solution indicative';
+}
+});
+}
+}, 100);
+}
+} else {
+// Ouvrir la visionneuse de document
+const fileUrl = preview.getAttribute('data-url');
+const title = preview.closest('.content-card').querySelector('.card-title').textContent;
 
-      document.querySelector('.document-viewer .viewer-title').textContent = title;
+document.querySelector('.document-viewer .viewer-title').textContent = title;
 
-      // Vérifier si c'est un PDF
-      if (fileUrl && fileUrl.toLowerCase().endsWith('.pdf')) {
-        // Utiliser PDFObject pour afficher le PDF
-        document.querySelector('.document-frame').style.display = 'none';
-        document.querySelector('.document-frame-container').style.display = 'none';
-        
-        // S'assurer que le contenu est visible et a une hauteur correcte
-        document.querySelector('.document-content').style.display = 'block';
-        document.querySelector('.document-content').innerHTML = '<div class="pdf-container"></div><div class="pdf-overlay"></div>';
-        
-        // Intégrer le PDF
-        PDFObject.embed(fileUrl, document.querySelector('.pdf-container'), {
-          pdfOpenParams: {
-            navpanes: 0,
-            toolbar: 0,
-            statusbar: 0,
-            view: 'FitH'
-          }
-        });
-        
-        // Désactiver le menu contextuel sur l'overlay
-        setTimeout(function() {
-          document.querySelector('.pdf-overlay').addEventListener('contextmenu', function(ev) {
-            ev.preventDefault();
-            return false;
-          });
-        }, 100);
-      } else {
-        // Pour les fichiers non-PDF, utiliser l'iframe standard
-        document.querySelector('.document-frame').src = fileUrl || '';
-        document.querySelector('.document-content').style.display = 'none';
-        document.querySelector('.document-frame-container').style.display = 'block';
-        document.querySelector('.document-frame').style.display = 'block';
-      }
-      
-      document.querySelector('.document-viewer').classList.add('active');
-    }
-  }
+// Modifier l'URL pour désactiver tous les contrôles du PDF
+let displayUrl = fileUrl;
+if (fileUrl.toLowerCase().endsWith('.pdf')) {
+  // Paramètres complets pour désactiver toutes les fonctionnalités
+  displayUrl = fileUrl + '#toolbar=0&navpanes=0&statusbar=0&scrollbar=1&view=FitH';
+}
+
+document.querySelector('.document-frame').src = displayUrl;
+document.querySelector('.document-content').style.display = 'none';
+document.querySelector('.document-frame').style.display = 'block';
+document.querySelector('.document-viewer').classList.add('active');
+}
+}
 });
 
 // Fermer la visionneuse de document
 document.querySelector('.close-viewer').addEventListener('click', function() {
-  document.querySelector('.document-viewer').classList.remove('active');
-  document.querySelector('.document-frame').src = '';
-  document.querySelector('.document-content').innerHTML = '';
-  document.querySelector('.document-frame-container').style.display = 'none';
-  document.querySelector('.document-content').style.display = 'none';
+document.querySelector('.document-viewer').classList.remove('active');
+document.querySelector('.document-frame').src = '';
 });
 
 // Validation du quiz
 document.addEventListener('click', function(e) {
-  if (e.target.id === 'validate-quiz') {
-    validateQuiz();
-  }
+if (e.target.id === 'validate-quiz') {
+validateQuiz();
+}
 });
 
 // Réservation d'entretien
 /* Supprimé */
+}
 
 // Fonction pour valider un quiz
 function validateQuiz() {
-  const questions = document.querySelectorAll('.quiz-question');
-  let score = 0;
+const questions = document.querySelectorAll('.quiz-question');
+let score = 0;
 
-  questions.forEach(question => {
-    const correctIndex = parseInt(question.getAttribute('data-correct'));
-    const selectedOption = question.querySelector('.answer-option.selected');
+questions.forEach(question => {
+const correctIndex = parseInt(question.getAttribute('data-correct'));
+const selectedOption = question.querySelector('.answer-option.selected');
 
-    // Réinitialiser les classes
-    question.querySelectorAll('.answer-option').forEach(option => {
-      option.classList.remove('correct', 'incorrect');
-    });
+// Réinitialiser les classes
+question.querySelectorAll('.answer-option').forEach(option => {
+option.classList.remove('correct', 'incorrect');
+});
 
-    // Marquer la bonne réponse
-    question.querySelectorAll('.answer-option')[correctIndex].classList.add('correct');
+// Marquer la bonne réponse
+question.querySelectorAll('.answer-option')[correctIndex].classList.add('correct');
 
-    // Vérifier si une réponse a été sélectionnée et si elle est correcte
-    if (selectedOption) {
-      const selectedIndex = parseInt(selectedOption.getAttribute('data-index'));
+// Vérifier si une réponse a été sélectionnée et si elle est correcte
+if (selectedOption) {
+const selectedIndex = parseInt(selectedOption.getAttribute('data-index'));
 
-      if (selectedIndex === correctIndex) {
-        score++;
-      } else {
-        selectedOption.classList.add('incorrect');
-      }
-    }
+if (selectedIndex === correctIndex) {
+score++;
+} else {
+selectedOption.classList.add('incorrect');
+}
+}
 
-    // Afficher l'explication
-    question.querySelector('.explanation').style.display = 'block';
-  });
+// Afficher l'explication
+question.querySelector('.explanation').style.display = 'block';
+});
 
-  // Calculer le pourcentage
-  const percentage = Math.round((score / questions.length) * 100);
+// Calculer le pourcentage
+const percentage = Math.round((score / questions.length) * 100);
 
-  // Ajouter le résultat
-  let feedback = '';
-  if (percentage >= 80) {
-    feedback = 'Excellent ! Vous maîtrisez bien le sujet.';
-  } else if (percentage >= 60) {
-    feedback = 'Bon travail ! Quelques révisions supplémentaires seraient bénéfiques.';
-  } else {
-    feedback = 'Des révisions sont nécessaires pour mieux comprendre ce sujet.';
-  }
+// Ajouter le résultat
+let feedback = '';
+if (percentage >= 80) {
+feedback = 'Excellent ! Vous maîtrisez bien le sujet.';
+} else if (percentage >= 60) {
+feedback = 'Bon travail ! Quelques révisions supplémentaires seraient bénéfiques.';
+} else {
+feedback = 'Des révisions sont nécessaires pour mieux comprendre ce sujet.';
+}
 
-  const resultHtml = `
+const resultHtml = `
            <div class="quiz-result" style="margin-top: 2rem; padding: 1rem; background-color: #F5F5F5; border-radius: 4px;">
                <h3>Résultat: ${score}/${questions.length} (${percentage}%)</h3>
                <p>${feedback}</p>
            </div>
            `;
 
-  // Ajouter le résultat au quiz
-  if (!document.querySelector('.quiz-result')) {
-    document.querySelector('.quiz-questions').insertAdjacentHTML('afterend', resultHtml);
-  } else {
-    document.querySelector('.quiz-result').outerHTML = resultHtml;
-  }
+// Ajouter le résultat au quiz
+if (!document.querySelector('.quiz-result')) {
+document.querySelector('.quiz-questions').insertAdjacentHTML('afterend', resultHtml);
+} else {
+document.querySelector('.quiz-result').outerHTML = resultHtml;
+}
 
-  // Désactiver le bouton de validation
-  document.getElementById('validate-quiz').disabled = true;
+// Désactiver le bouton de validation
+document.getElementById('validate-quiz').disabled = true;
 }
 
 // Initialiser tout au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
-  initAll();
+initAll();
 
-  // Initialiser la visionneuse de document
-  if (!document.querySelector('.document-viewer .document-content')) {
-    const documentViewer = document.querySelector('.document-viewer');
-    const documentContent = document.createElement('div');
-    documentContent.className = 'document-content';
-    documentViewer.insertBefore(documentContent, document.querySelector('.document-frame'));
-  }
+// Initialiser la visionneuse de document
+if (!document.querySelector('.document-viewer .document-content')) {
+const documentViewer = document.querySelector('.document-viewer');
+const documentContent = document.createElement('div');
+documentContent.className = 'document-content';
+documentViewer.insertBefore(documentContent, document.querySelector('.document-frame'));
+}
 });
 </script>
 </body>
