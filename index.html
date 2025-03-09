@@ -461,6 +461,15 @@ header {
   flex: 1;
   border: none;
   display: none;
+  pointer-events: auto;
+}
+
+/* Empêcher le clic droit sur l'iframe */
+.document-viewer {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 /* Ajout de styles spécifiques pour les miniatures */
@@ -2044,11 +2053,11 @@ const title = preview.closest('.content-card').querySelector('.card-title').text
 
 document.querySelector('.document-viewer .viewer-title').textContent = title;
 
-// Modifier l'URL pour désactiver le téléchargement si c'est un PDF
+// Modifier l'URL pour désactiver tous les contrôles du PDF
 let displayUrl = fileUrl;
 if (fileUrl.toLowerCase().endsWith('.pdf')) {
-// Ajouter uniquement le paramètre #toolbar=0 pour masquer la barre d'outils qui contient le bouton de téléchargement
-displayUrl = fileUrl + '#toolbar=0';
+  // Paramètres complets pour désactiver toutes les fonctionnalités
+  displayUrl = fileUrl + '#toolbar=0&navpanes=0&statusbar=0&scrollbar=1&view=FitH';
 }
 
 document.querySelector('.document-frame').src = displayUrl;
