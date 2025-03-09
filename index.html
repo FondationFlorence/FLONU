@@ -2032,10 +2032,10 @@ filterRessources();
 // Filtres fiches de révision
 document.getElementById('revision-search').addEventListener('input', filterRevisions);
 document.getElementById('domain-select').addEventListener('change', function() {
-filterRevisions();
-filterQuizzes();
-filterCas();
-filterEntretienRessources();
+  filterRevisions();
+  filterQuizzes();
+  filterCas();
+  filterEntretienRessources();
 });
 
 // Filtres quiz
@@ -2157,86 +2157,6 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// Vérifier s'il s'agit d'un quiz
-if (preview.hasAttribute('data-quiz-id')) {
-const quizId = parseInt(preview.getAttribute('data-quiz-id'));
-document.getElementById('quiz-list').style.display = 'none';
-document.getElementById('active-quiz').style.display = 'block';
-document.getElementById('active-quiz').innerHTML = generateActiveQuiz(quizId);
-
-// Attacher les événements du quiz
-document.getElementById('back-to-quizzes').addEventListener('click', function() {
-document.getElementById('quiz-list').style.display = 'block';
-document.getElementById('active-quiz').style.display = 'none';
-});
-
-document.getElementById('validate-quiz').addEventListener('click', function() {
-validateQuiz();
-});
-
-// Attacher les événements de sélection des réponses
-document.querySelectorAll('.answer-option').forEach(option => {
-option.addEventListener('click', function() {
-const question = this.closest('.quiz-question');
-question.querySelectorAll('.answer-option').forEach(opt => opt.classList.remove('selected'));
-this.classList.add('selected');
-});
-});
-} else if (preview.hasAttribute('data-inline')) {
-// Traiter le contenu inline
-const contentId = preview.getAttribute('data-content-id');
-const docItem = casData.find(item => item.id == contentId);
-
-if (docItem) {
-const title = docItem.title;
-const content = docItem.content;
-
-document.querySelector('.document-viewer .viewer-title').textContent = title;
-document.querySelector('.document-content').innerHTML = content;
-document.querySelector('.document-content').style.display = 'block';
-document.querySelector('.document-frame').style.display = 'none';
-document.querySelector('.document-viewer').classList.add('active');
-
-// Initialiser le bouton toggle pour la solution (s'il existe)
-setTimeout(function() {
-const toggleButton = document.getElementById('toggleSolution');
-if (toggleButton) {
-toggleButton.addEventListener('click', function() {
-const solutionContent = document.getElementById('solutionContent');
-if (solutionContent.style.display === 'none') {
-solutionContent.style.display = 'block';
-toggleButton.textContent = 'Masquer la solution indicative';
-} else {
-solutionContent.style.display = 'none';
-toggleButton.textContent = 'Afficher la solution indicative';
-}
-});
-}
-}, 100);
-}
-} else {
-// Ouvrir la visionneuse de document
-const fileUrl = preview.getAttribute('data-url');
-const title = preview.closest('.content-card').querySelector('.card-title').textContent;
-
-document.querySelector('.document-viewer .viewer-title').textContent = title;
-
-// Utiliser PDF.js pour les fichiers PDF
-let displayUrl = fileUrl;
-if (fileUrl.toLowerCase().endsWith('.pdf')) {
-  // Utiliser le viewer PDF.js
-  displayUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fileUrl)}&download=false&print=false`;
-}
-
-document.querySelector('.document-frame').src = displayUrl;
-document.querySelector('.document-content').style.display = 'none';
-document.querySelector('.document-frame-container').style.display = 'block';
-document.querySelector('.document-frame').style.display = 'block';
-document.querySelector('.document-viewer').classList.add('active');
-}
-}
-});
-
 // Fermer la visionneuse de document
 document.querySelector('.close-viewer').addEventListener('click', function() {
   document.querySelector('.document-viewer').classList.remove('active');
@@ -2248,9 +2168,9 @@ document.querySelector('.close-viewer').addEventListener('click', function() {
 
 // Validation du quiz
 document.addEventListener('click', function(e) {
-if (e.target.id === 'validate-quiz') {
-validateQuiz();
-}
+  if (e.target.id === 'validate-quiz') {
+    validateQuiz();
+  }
 });
 
 // Réservation d'entretien
@@ -2259,65 +2179,65 @@ validateQuiz();
 
 // Fonction pour valider un quiz
 function validateQuiz() {
-const questions = document.querySelectorAll('.quiz-question');
-let score = 0;
+  const questions = document.querySelectorAll('.quiz-question');
+  let score = 0;
 
-questions.forEach(question => {
-const correctIndex = parseInt(question.getAttribute('data-correct'));
-const selectedOption = question.querySelector('.answer-option.selected');
+  questions.forEach(question => {
+    const correctIndex = parseInt(question.getAttribute('data-correct'));
+    const selectedOption = question.querySelector('.answer-option.selected');
 
-// Réinitialiser les classes
-question.querySelectorAll('.answer-option').forEach(option => {
-option.classList.remove('correct', 'incorrect');
-});
+    // Réinitialiser les classes
+    question.querySelectorAll('.answer-option').forEach(option => {
+      option.classList.remove('correct', 'incorrect');
+    });
 
-// Marquer la bonne réponse
-question.querySelectorAll('.answer-option')[correctIndex].classList.add('correct');
+    // Marquer la bonne réponse
+    question.querySelectorAll('.answer-option')[correctIndex].classList.add('correct');
 
-// Vérifier si une réponse a été sélectionnée et si elle est correcte
-if (selectedOption) {
-const selectedIndex = parseInt(selectedOption.getAttribute('data-index'));
+    // Vérifier si une réponse a été sélectionnée et si elle est correcte
+    if (selectedOption) {
+      const selectedIndex = parseInt(selectedOption.getAttribute('data-index'));
 
-if (selectedIndex === correctIndex) {
-score++;
-} else {
-selectedOption.classList.add('incorrect');
-}
-}
+      if (selectedIndex === correctIndex) {
+        score++;
+      } else {
+        selectedOption.classList.add('incorrect');
+      }
+    }
 
-// Afficher l'explication
-question.querySelector('.explanation').style.display = 'block';
-});
+    // Afficher l'explication
+    question.querySelector('.explanation').style.display = 'block';
+  });
 
-// Calculer le pourcentage
-const percentage = Math.round((score / questions.length) * 100);
+  // Calculer le pourcentage
+  const percentage = Math.round((score / questions.length) * 100);
 
-// Ajouter le résultat
-let feedback = '';
-if (percentage >= 80) {
-feedback = 'Excellent ! Vous maîtrisez bien le sujet.';
-} else if (percentage >= 60) {
-feedback = 'Bon travail ! Quelques révisions supplémentaires seraient bénéfiques.';
-} else {
-feedback = 'Des révisions sont nécessaires pour mieux comprendre ce sujet.';
-}
+  // Ajouter le résultat
+  let feedback = '';
+  if (percentage >= 80) {
+    feedback = 'Excellent ! Vous maîtrisez bien le sujet.';
+  } else if (percentage >= 60) {
+    feedback = 'Bon travail ! Quelques révisions supplémentaires seraient bénéfiques.';
+  } else {
+    feedback = 'Des révisions sont nécessaires pour mieux comprendre ce sujet.';
+  }
 
-const resultHtml = `
+  const resultHtml = `
            <div class="quiz-result" style="margin-top: 2rem; padding: 1rem; background-color: #F5F5F5; border-radius: 4px;">
                <h3>Résultat: ${score}/${questions.length} (${percentage}%)</h3>
                <p>${feedback}</p>
            </div>
            `;
 
-// Ajouter le résultat au quiz
-if (!document.querySelector('.quiz-result')) {
-document.querySelector('.quiz-questions').insertAdjacentHTML('afterend', resultHtml);
-} else {
-document.querySelector('.quiz-result').outerHTML = resultHtml;
-}
+  // Ajouter le résultat au quiz
+  if (!document.querySelector('.quiz-result')) {
+    document.querySelector('.quiz-questions').insertAdjacentHTML('afterend', resultHtml);
+  } else {
+    document.querySelector('.quiz-result').outerHTML = resultHtml;
+  }
 
-// Désactiver le bouton de validation
-document.getElementById('validate-quiz').disabled = true;
+  // Désactiver le bouton de validation
+  document.getElementById('validate-quiz').disabled = true;
 }
 
 // Initialiser tout au chargement de la page
@@ -2335,4 +2255,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-
