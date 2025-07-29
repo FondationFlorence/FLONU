@@ -1437,7 +1437,7 @@ function createVideoElement(video) {
 const tagsHtml = video.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
 
 return `
-           <div class="content-card" data-type="${video.type}" data-subtype="${video.subtype}" data-tags="${video.tags.join(',')}">
+           <div class="content-card" data-type="${video.type}" data-subtype="${video.subtype}" data-tags="${video.tags.map(tag => tag.toLowerCase()).join(',')}">
                <div class="card-media">
                    <iframe src="${video.embedUrl}" scrolling="no" allowfullscreen></iframe>
                </div>
@@ -1499,7 +1499,7 @@ const imageHtml = doc.imageUrl
 : `<div class="document-icon-container"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0RjRGNEYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTQgMkg2YTIgMiAwIDAgMC0yIDJ2MTZhMiAyIDAgMCAwIDIgMmgxMmEyIDIgMCAwIDAgMi0yVjh6Ij48L3BhdGg+PHBvbHlsaW5lIHBvaW50cz0iMTQgMiAxNCA4IDIwIDgiPjwvcG9seWxpbmU+PC9zdmc+" alt="Document" class="default-icon"></div>`;
 
 return `
-           <div class="content-card" data-type="${doc.type}" data-category="${doc.category || ''}" data-domain="${doc.domain || ''}" data-tags="${doc.tags.join(',')}">
+           <div class="content-card" data-type="${doc.type}" data-category="${doc.category || ''}" data-domain="${doc.domain || ''}" data-tags="${doc.tags.map(tag => tag.toLowerCase()).join(',')}">
                <div class="card-media">
                    <div class="document-preview" ${previewAttributes}>
                        ${imageHtml}
@@ -1525,7 +1525,7 @@ function createQuizElement(quiz) {
 const tagsHtml = quiz.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
 
 return `
-           <div class="content-card" data-domain="${quiz.domain}" data-tags="${quiz.tags.join(',')}">
+           <div class="content-card" data-domain="${quiz.domain}" data-tags="${quiz.tags.map(tag => tag.toLowerCase()).join(',')}">
                <div class="card-media">
                    <div class="document-preview" data-quiz-id="${quiz.id}">
                        <div class="document-icon-container">
@@ -1692,28 +1692,36 @@ subdomainSelect.innerHTML += `<option value="${sub.value}">${sub.label}</option>
 }
 }
 
+// Fonction utilitaire pour vérifier la correspondance avec la recherche
+function matchesItemSearch(element, searchTerm) {
+    if (!searchTerm) return true;
+    const title = element.querySelector('.card-title').textContent.toLowerCase();
+    const description = element.querySelector('p').textContent.toLowerCase();
+    const tags = element.getAttribute('data-tags').split(',').map(tag => tag.toLowerCase());
+    return (
+        title.includes(searchTerm) ||
+        description.includes(searchTerm) ||
+        tags.some(tag => tag.includes(searchTerm))
+    );
+}
+
 // Fonction pour filtrer les vidéos
 function filterVideos() {
 const searchTerm = document.getElementById('video-search').value.toLowerCase();
 const typeFilter = document.getElementById('type-filter').value;
 const subtypeFilter = document.getElementById('subtype-filter').value;
 const durationFilter = document.getElementById('duration-filter').value;
-const tagFilter = document.getElementById('tag-filter').value;
+const tagFilter = document.getElementById('tag-filter').value.toLowerCase();
 
 const videos = document.querySelectorAll('#videos-grid .content-card');
 
 videos.forEach(video => {
-const title = video.querySelector('.card-title').textContent.toLowerCase();
-const description = video.querySelector('p').textContent.toLowerCase();
 const videoType = video.getAttribute('data-type');
 const videoSubtype = video.getAttribute('data-subtype');
-const tags = video.getAttribute('data-tags').split(',');
+const tags = video.getAttribute('data-tags').split(',').map(tag => tag.toLowerCase());
 
 // Vérifier la correspondance avec la recherche
-const matchesSearch = !searchTerm || 
-title.includes(searchTerm) || 
-description.includes(searchTerm) || 
-tags.some(tag => tag.toLowerCase().includes(searchTerm));
+const matchesSearch = matchesItemSearch(video, searchTerm);
 
 // Vérifier la correspondance avec le type
 const matchesType = !typeFilter || videoType === typeFilter;
@@ -1744,16 +1752,10 @@ const categoryFilter = document.querySelector('#ressources .filters .filter-btn.
 const resources = document.querySelectorAll('#ressources-grid .content-card');
 
 resources.forEach(resource => {
-const title = resource.querySelector('.card-title').textContent.toLowerCase();
-const description = resource.querySelector('p').textContent.toLowerCase();
 const category = resource.getAttribute('data-category');
-const tags = resource.getAttribute('data-tags').split(',');
 
 // Vérifier la correspondance avec la recherche
-const matchesSearch = !searchTerm || 
-title.includes(searchTerm) || 
-description.includes(searchTerm) || 
-tags.some(tag => tag.toLowerCase().includes(searchTerm));
+const matchesSearch = matchesItemSearch(resource, searchTerm);
 
 // Vérifier la correspondance avec la catégorie
 const matchesCategory = categoryFilter === 'all' || category === categoryFilter;
@@ -1775,16 +1777,10 @@ const domainFilter = document.getElementById('domain-select').value;
 const revisions = document.querySelectorAll('#revisions-grid .content-card');
 
 revisions.forEach(revision => {
-const title = revision.querySelector('.card-title').textContent.toLowerCase();
-const description = revision.querySelector('p').textContent.toLowerCase();
 const domain = revision.getAttribute('data-domain');
-const tags = revision.getAttribute('data-tags').split(',');
 
 // Vérifier la correspondance avec la recherche
-const matchesSearch = !searchTerm || 
-title.includes(searchTerm) || 
-description.includes(searchTerm) || 
-tags.some(tag => tag.toLowerCase().includes(searchTerm));
+const matchesSearch = matchesItemSearch(revision, searchTerm);
 
 // Vérifier la correspondance avec le domaine
 const matchesDomain = !domainFilter || domain === domainFilter;
@@ -1806,16 +1802,10 @@ const domainFilter = document.getElementById('domain-select').value;
 const quizzes = document.querySelectorAll('#quiz-grid .content-card');
 
 quizzes.forEach(quiz => {
-const title = quiz.querySelector('.card-title').textContent.toLowerCase();
-const description = quiz.querySelector('p').textContent.toLowerCase();
 const domain = quiz.getAttribute('data-domain');
-const tags = quiz.getAttribute('data-tags').split(',');
 
 // Vérifier la correspondance avec la recherche
-const matchesSearch = !searchTerm || 
-title.includes(searchTerm) || 
-description.includes(searchTerm) || 
-tags.some(tag => tag.toLowerCase().includes(searchTerm));
+const matchesSearch = matchesItemSearch(quiz, searchTerm);
 
 // Vérifier la correspondance avec le domaine
 const matchesDomain = !domainFilter || domain === domainFilter;
@@ -1837,16 +1827,10 @@ const domainFilter = document.getElementById('domain-select').value;
 const casPratiques = document.querySelectorAll('#cas-grid .content-card');
 
 casPratiques.forEach(cas => {
-const title = cas.querySelector('.card-title').textContent.toLowerCase();
-const description = cas.querySelector('p').textContent.toLowerCase();
 const domain = cas.getAttribute('data-domain');
-const tags = cas.getAttribute('data-tags').split(',');
 
 // Vérifier la correspondance avec la recherche
-const matchesSearch = !searchTerm || 
-title.includes(searchTerm) || 
-description.includes(searchTerm) || 
-tags.some(tag => tag.toLowerCase().includes(searchTerm));
+const matchesSearch = matchesItemSearch(cas, searchTerm);
 
 // Vérifier la correspondance avec le domaine
 const matchesDomain = !domainFilter || domain === domainFilter;
@@ -1868,16 +1852,10 @@ const domainFilter = document.getElementById('domain-select').value;
 const ressources = document.querySelectorAll('#entretien-grid .content-card');
 
 ressources.forEach(ressource => {
-const title = ressource.querySelector('.card-title').textContent.toLowerCase();
-const description = ressource.querySelector('p').textContent.toLowerCase();
 const domain = ressource.getAttribute('data-domain');
-const tags = ressource.getAttribute('data-tags').split(',');
 
 // Vérifier la correspondance avec la recherche
-const matchesSearch = !searchTerm || 
-title.includes(searchTerm) || 
-description.includes(searchTerm) || 
-tags.some(tag => tag.toLowerCase().includes(searchTerm));
+const matchesSearch = matchesItemSearch(ressource, searchTerm);
 
 // Vérifier la correspondance avec le domaine
 const matchesDomain = !domainFilter || domain === domainFilter;
