@@ -879,6 +879,16 @@
                 description: "Guide pratique pour préparer et réussir ses stages professionnels.",
                 tags: ["stages", "guide", "préparation"]
             }
+                ,
+                {
+                    id: 9,
+                    title: "Eurazeo : Presentation des equipes buyout",
+                    type: "document",
+                    category: "partners",
+                    fileUrl: "https://drive.google.com/file/d/1CiStoLebcA4ktOX6iCXzWsx2VjBhiLLy/view?usp=sharing",
+                    description: "Document de presentation des equipes buyout d'Eurazeo, partenaire de la Fondation Florence.",
+                    tags: ["eurazeo", "partenariat", "buyout", "private equity"]
+                }
         ];
 
         // Données des fiches de révision (simulées)
